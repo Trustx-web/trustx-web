@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustX — Commerce Risk Intelligence Infrastructure</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#3B82F6',
+                            purple: '#A855F7',
+                            lavender: '#C084FC',
+                            dark: '#030712',
+                            card: '#0B0F19',
+                            panel: '#111827',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #030712;
+            color: #F3F4F6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #FFFFFF 0%, #C084FC 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-logo-mark {
+            position: relative;
+            width: 28px;
+            height: 24px;
+            display: inline-block;
+        }
+        .brand-logo-rear {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            border-radius: 4px;
+            transform: skewX(-14deg);
+        }
+        .brand-logo-front {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #C084FC, #A855F7);
+            border-radius: 4px;
+            transform: skewX(-14deg);
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        .glass-panel {
+            background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(192, 132, 252, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-purple/30 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel px-5 py-3.5 rounded-xl border border-brand-purple/40 text-white font-mono text-sm flex items-center space-x-3 shadow-2xl">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span id="toast-message">Command executed successfully</span>
+        </div>
+    </div>
+
+    <!-- Access Request Modal -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="glass-panel max-w-md w-full p-8 rounded-2xl relative border border-white/10 shadow-2xl">
+            <button onclick="toggleModal(false)" class="absolute top-5 right-5 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="brand-logo-mark">
+                    <div class="brand-logo-rear"></div>
+                    <div class="brand-logo-front"></div>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight">TrustX</span>
+            </div>
+
+            <h3 class="text-2xl font-bold mb-2">Request Infrastructure Access</h3>
+            <p class="text-gray-400 text-sm mb-6">Connect your enterprise commerce stack to the TrustX decisioning engine.</p>
+
+            <form onsubmit="handleModalSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Work Email</label>
+                    <input type="email" required placeholder="name@company.com" class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand-purple transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Monthly Transaction Volume</label>
+                    <select class="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand-purple text-gray-300">
+                        <option>Under 100k transactions / mo</option>
+                        <option>100k to 1M transactions / mo</option>
+                        <option>1M to 10M transactions / mo</option>
+                        <option>10M+ Enterprise Scale</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-brand-blue to-brand-purple text-white font-semibold py-3.5 rounded-lg text-sm hover:opacity-90 transition shadow-lg shadow-brand-purple/20">
+                    Submit Access Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-40 glass-panel border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="brand-logo-mark">
+                    <div class="brand-logo-rear"></div>
+                    <div class="brand-logo-front"></div>
+                </div>
+                <span class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-brand-lavender transition">TrustX</span>
+            </a>
+
+            <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
+                <a href="#platform" class="hover:text-white transition">Platform</a>
+                <a href="#telemetry" class="hover:text-white transition">Telemetry</a>
+                <a href="#fault-sandbox" class="hover:text-white transition">Reliability</a>
+                <a href="#developer" class="hover:text-white transition">Developers</a>
+                <a href="#architecture" class="hover:text-white transition">Architecture</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleModal(true)" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-5 py-2.5 rounded-lg text-sm font-semibold transition">
+                    Request Access
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-36 pb-24 overflow-hidden border-b border-white/5">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-purple/15 via-brand-blue/5 to-transparent pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-purple/10 border border-brand-purple/20 mb-8">
+                    <span class="w-2 h-2 rounded-full bg-brand-lavender animate-pulse"></span>
+                    <span class="font-mono text-xs text-brand-lavender font-medium tracking-wide uppercase">Real Time Commerce Intelligence</span>
+                </div>
+
+                <h1 class="font-display text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+                    Trust every <span class="gradient-text">transaction.</span>
+                </h1>
+
+                <p class="text-xl text-gray-300 font-normal mb-10 leading-relaxed">
+                    TrustX turns fragmented commerce signals into real time decisioning infrastructure. Evaluate device, behavior, address, payment, and velocity vectors in under 15 milliseconds.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button onclick="toggleModal(true)" class="bg-gradient-to-r from-brand-blue to-brand-purple text-white px-8 py-4 rounded-xl font-bold text-sm tracking-wide shadow-xl shadow-brand-purple/20 hover:opacity-95 transition flex items-center justify-center space-x-2">
+                        <span>Deploy TrustX Infrastructure</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                    <a href="#telemetry" class="glass-card px-8 py-4 rounded-xl font-semibold text-sm text-gray-300 hover:text-white flex items-center justify-center space-x-2 border border-white/10">
+                        <span>Explore Telemetry Engine</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Telemetry Simulation Console -->
+    <section id="telemetry" class="py-24 border-b border-white/5 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="font-mono text-xs text-brand-blue uppercase tracking-widest font-semibold">Interactive Sandbox</span>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold mt-2">One Order. 14 Signals. One Decision.</h2>
+                </div>
+                <p class="text-gray-400 text-sm max-w-md mt-4 md:mt-0">
+                    Select a scenario below to observe how the TrustX decisioning engine processes high dimensional commerce telemetry.
+                </p>
+            </div>
+
+            <!-- Scenario Buttons -->
+            <div class="flex flex-wrap gap-3 mb-8">
+                <button onclick="triggerScenario('clean')" id="btn-clean" class="scenario-btn active glass-panel px-5 py-2.5 rounded-lg text-xs font-mono border-brand-purple text-white flex items-center space-x-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Clean Mobile Order</span>
+                </button>
+                <button onclick="triggerScenario('cod')" id="btn-cod" class="scenario-btn glass-panel px-5 py-2.5 rounded-lg text-xs font-mono text-gray-400 hover:text-white flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+                    <span>High Risk COD Order</span>
+                </button>
+                <button onclick="triggerScenario('promo')" id="btn-promo" class="scenario-btn glass-panel px-5 py-2.5 rounded-lg text-xs font-mono text-gray-400 hover:text-white flex items-center space-x-2">
+                    <i data-lucide="repeat" class="w-4 h-4 text-brand-purple"></i>
+                    <span>Promo Exploitation Attack</span>
+                </button>
+            </div>
+
+            <!-- Telemetry Output Box -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Payload Panel -->
+                <div class="glass-card rounded-2xl p-6 border border-white/10 font-mono text-xs">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/10 text-gray-400">
+                        <span class="uppercase tracking-wider">Order Telemetry Payload</span>
+                        <span class="text-brand-lavender" id="order-id">ORD_88419</span>
+                    </div>
+                    <pre id="payload-display" class="text-gray-300 overflow-x-auto space-y-1 font-mono leading-relaxed">
+{
+  "orderAmount": 18450,
+  "paymentMethod": "COD",
+  "location": "Bengaluru",
+  "deviceAgeDays": 0.2,
+  "velocityWindowMs": 420
+}</pre>
+                </div>
+
+                <!-- Signal Ingestion Stream -->
+                <div class="glass-card rounded-2xl p-6 border border-white/10 lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/10">
+                            <span class="font-mono text-xs text-gray-400 uppercase tracking-wider">Evaluated Signal Matrix</span>
+                            <span class="font-mono text-xs text-emerald-400 flex items-center space-x-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span>P99 Latency: <span id="latency-val">4.2ms</span></span>
+                            </span>
+                        </div>
+
+                        <div id="signals-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Decision Output Box -->
+                    <div class="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-black/40 p-5 rounded-xl border border-white/5">
+                        <div>
+                            <span class="text-xs font-mono text-gray-400 uppercase block mb-1">Engine Decision Control</span>
+                            <div class="text-2xl font-bold font-mono tracking-tight" id="decision-output">
+                                <span class="text-emerald-400">APPROVE</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 sm:mt-0 text-right font-mono text-xs">
+                            <span class="text-gray-400 block mb-1">Decision Confidence</span>
+                            <span class="text-white font-bold text-sm" id="confidence-val">99.8%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Outage & Reliability Sandbox -->
+    <section id="fault-sandbox" class="py-24 border-b border-white/5 bg-black/40">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-3xl mb-16">
+                <span class="font-mono text-xs text-brand-purple uppercase tracking-widest font-semibold">Failure Containment Engine</span>
+                <h2 class="font-display text-3xl md:text-5xl font-bold mt-2 mb-6">What happens when intelligence fails?</h2>
+                <p class="text-gray-300 leading-relaxed text-base">
+                    Traditional risk tools pass orders blind when a sub component times out. TrustX isolates failing microservices and applies explicit degraded execution policies automatically.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Sandbox Control Switches -->
+                <div class="glass-card p-8 rounded-2xl border border-white/10 space-y-6">
+                    <h3 class="font-mono text-sm uppercase text-gray-400 tracking-wider mb-4">Simulate Component Outage</h3>
+
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-black/50 border border-white/5">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="smartphone" class="w-5 h-5 text-brand-blue"></i>
+                            <div>
+                                <div class="font-semibold text-sm">Device Fingerprint Database</div>
+                                <div class="text-xs text-gray-400">Timeout SLA: 8.0ms</div>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" onchange="toggleFault('device', this.checked)" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-black/50 border border-white/5">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="share-2" class="w-5 h-5 text-brand-purple"></i>
+                            <div>
+                                <div class="font-semibold text-sm">Cross Merchant Graph Partition</div>
+                                <div class="text-xs text-gray-400">Timeout SLA: 12.0ms</div>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" onchange="toggleFault('graph', this.checked)" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Live State Console -->
+                <div class="glass-panel p-8 rounded-2xl border border-brand-purple/30 font-mono text-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <span class="text-gray-400 uppercase">System State Evaluation</span>
+                        <span id="fault-status-chip" class="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">ALL SYSTEMS NOMINAL</span>
+                    </div>
+
+                    <div id="fault-logs" class="space-y-2 text-gray-300 h-36 overflow-y-auto pt-2">
+                        <div class="text-emerald-400">[SYSTEM] All 14 telemetry pipelines operating within 15ms SLA bounds.</div>
+                        <div class="text-gray-500">[POLICY] Primary rule engine executing with standard confidence parameters.</div>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-gray-400">Fallback Policy Mode:</span>
+                        <span id="fault-policy-mode" class="text-white font-bold">PASS THROUGH OPTIMIZED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Developer API Terminal -->
+    <section id="developer" class="py-24 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="font-mono text-xs text-brand-blue uppercase tracking-widest font-semibold">Developer Integration</span>
+                    <h2 class="font-display text-3xl md:text-4xl font-bold mt-2">Engineered for Integration</h2>
+                </div>
+                <p class="text-gray-400 text-sm max-w-md mt-4 md:mt-0">
+                    Connect TrustX into your existing checkout, payment gateway, or backend order pipeline via REST API SDKs.
+                </p>
+            </div>
+
+            <!-- Terminal Window -->
+            <div class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+                <!-- Header Tabs -->
+                <div class="bg-black/80 px-6 py-4 flex items-center justify-between border-b border-white/10">
+                    <div class="flex space-x-2">
+                        <button onclick="switchTab('curl')" id="tab-curl" class="tab-btn active font-mono text-xs px-3 py-1.5 rounded bg-white/10 text-white">cURL</button>
+                        <button onclick="switchTab('python')" id="tab-python" class="tab-btn font-mono text-xs px-3 py-1.5 rounded text-gray-400 hover:text-white">Python</button>
+                        <button onclick="switchTab('node')" id="tab-node" class="tab-btn font-mono text-xs px-3 py-1.5 rounded text-gray-400 hover:text-white">Node.js</button>
+                    </div>
+                    <button onclick="copyCode()" class="text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-mono">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>Copy Snippet</span>
+                    </button>
+                </div>
+
+                <!-- Code Display -->
+                <div class="p-6 font-mono text-xs overflow-x-auto bg-black/60 text-gray-300">
+                    <pre id="code-block" class="leading-relaxed">curl -X POST https://api.trustx.io/v1/risk/evaluate \
+  -H "Authorization: Bearer tx_live_8f93a11b" \
+  -H "ContentType: application/json" \
+  -d '{
+    "orderId": "ORD_9912",
+    "amount": 18450,
+    "paymentMethod": "COD",
+    "deviceId": "dev_hash_8f21"
+  }'</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 border-t border-white/5 bg-black/80">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+            <div class="flex items-center space-x-3">
+                <div class="brand-logo-mark">
+                    <div class="brand-logo-rear"></div>
+                    <div class="brand-logo-front"></div>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-white">TrustX</span>
+            </div>
+
+            <p class="text-xs text-gray-500 font-mono">
+                © 2026 TrustX Technologies Inc. All rights reserved. Real Time Risk Decisioning Layer.
+            </p>
+
+            <div class="flex items-center space-x-6 text-xs text-gray-400">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+                <a href="#" class="hover:text-white transition">Security Spec</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Script Operations -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Access Modal Toggle
+        function toggleModal(show) {
+            const modal = document.getElementById('modal');
+            if(show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function handleModalSubmit(e) {
+            e.preventDefault();
+            toggleModal(false);
+            showToast("Access request submitted. Our team will reach out shortly.");
+        }
+
+        // Scenario Simulator Logic
+        const scenarios = {
+            clean: {
+                id: 'ORD_88419',
+                payload: `{\n  "orderAmount": 18450,\n  "paymentMethod": "UPI",\n  "location": "Bengaluru",\n  "deviceAgeDays": 420,\n  "velocityWindowMs": 12\n}`,
+                latency: '3.8ms',
+                decision: '<span class="text-emerald-400">APPROVE</span>',
+                confidence: '99.8%',
+                signals: [
+                    { name: 'Device Fingerprint', status: 'VERIFIED', ok: true },
+                    { name: 'Address Intelligence', status: 'MATCHED', ok: true },
+                    { name: 'Payment Behavior', status: 'LOW RISK', ok: true },
+                    { name: 'Velocity Check', status: 'NORMAL', ok: true },
+                    { name: 'Account Abuse', status: 'CLEAN', ok: true },
+                    { name: 'Return Risk', status: 'LOW', ok: true }
+                ]
+            },
+            cod: {
+                id: 'ORD_99210',
+                payload: `{\n  "orderAmount": 42000,\n  "paymentMethod": "COD",\n  "location": "Tier 3 Pin Code",\n  "deviceAgeDays": 0.1,\n  "velocityWindowMs": 4500\n}`,
+                latency: '6.4ms',
+                decision: '<span class="text-amber-400">VERIFY (STEP UP OTP)</span>',
+                confidence: '84.2%',
+                signals: [
+                    { name: 'Device Fingerprint', status: 'NEW DEVICE', ok: false },
+                    { name: 'Address Intelligence', status: 'HIGH RTO AREA', ok: false },
+                    { name: 'Payment Behavior', status: 'COD UNVERIFIED', ok: false },
+                    { name: 'Velocity Check', status: 'ELEVATED', ok: false },
+                    { name: 'Account Abuse', status: 'CLEAN', ok: true },
+                    { name: 'Return Risk', status: 'HIGH', ok: false }
+                ]
+            },
+            promo: {
+                id: 'ORD_10042',
+                payload: `{\n  "orderAmount": 1200,\n  "paymentMethod": "CARD",\n  "promoCode": "WELCOME50",\n  "deviceAgeDays": 0.01,\n  "velocityWindowMs": 110\n}`,
+                latency: '5.1ms',
+                decision: '<span class="text-rose-500">BLOCK PROMO</span>',
+                confidence: '96.5%',
+                signals: [
+                    { name: 'Device Fingerprint', status: 'DUPLICATE CLONE', ok: false },
+                    { name: 'Address Intelligence', status: 'MATCHED', ok: true },
+                    { name: 'Payment Behavior', status: 'CARD REUSE', ok: false },
+                    { name: 'Velocity Check', status: 'SPIKE DETECTED', ok: false },
+                    { name: 'Account Abuse', status: 'PROMO FARM', ok: false },
+                    { name: 'Return Risk', status: 'NORMAL', ok: true }
+                ]
+            }
+        };
+
+        function triggerScenario(type) {
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('border-brand-purple', 'text-white');
+                btn.classList.add('text-gray-400');
+            });
+            document.getElementById(`btn-${type}`).classList.add('border-brand-purple', 'text-white');
+
+            const data = scenarios[type];
+            document.getElementById('order-id').innerText = data.id;
+            document.getElementById('payload-display').innerText = data.payload;
+            document.getElementById('latency-val').innerText = data.latency;
+            document.getElementById('decision-output').innerHTML = data.decision;
+            document.getElementById('confidence-val').innerText = data.confidence;
+
+            const grid = document.getElementById('signals-grid');
+            grid.innerHTML = '';
+            data.signals.forEach(s => {
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-lg border font-mono text-[11px] ${s.ok ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/5 border-rose-500/20 text-rose-300'}`;
+                card.innerHTML = `<div class="text-gray-400 text-[10px] uppercase">${s.name}</div><div class="font-bold mt-1">${s.status}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        // Initial setup
+        triggerScenario('clean');
+
+        // Fault Injection Simulator
+        let activeFaults = { device: false, graph: false };
+
+        function toggleFault(type, value) {
+            activeFaults[type] = value;
+            const statusChip = document.getElementById('fault-status-chip');
+            const policyMode = document.getElementById('fault-policy-mode');
+            const logs = document.getElementById('fault-logs');
+
+            if(activeFaults.device || activeFaults.graph) {
+                statusChip.className = "px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold";
+                statusChip.innerText = "DEGRADED EXECUTION MODE";
+                policyMode.innerText = "STEP UP VERIFICATION ENFORCED";
+                policyMode.className = "text-amber-400 font-bold";
+
+                logs.innerHTML = `
+                    <div class="text-amber-400">[WARNING] Timeout SLA breached on sub component. Circuit breaker tripped.</div>
+                    <div class="text-white">[POLICY] Isolating degraded microservices. Switching to Step Up decisioning rules.</div>
+                    <div class="text-gray-400">[AUDIT] Zero unvetted pass through approvals issued. Containment intact.</div>
+                `;
+            } else {
+                statusChip.className = "px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold";
+                statusChip.innerText = "ALL SYSTEMS NOMINAL";
+                policyMode.innerText = "PASS THROUGH OPTIMIZED";
+                policyMode.className = "text-white font-bold";
+
+                logs.innerHTML = `
+                    <div class="text-emerald-400">[SYSTEM] All 14 telemetry pipelines operating within 15ms SLA bounds.</div>
+                    <div class="text-gray-500">[POLICY] Primary rule engine executing with standard confidence parameters.</div>
+                `;
+            }
+        }
+
+        // Tab Swapping
+        const codeSnippets = {
+            curl: `curl -X POST https://api.trustx.io/v1/risk/evaluate \\
+  -H "Authorization: Bearer tx_live_8f93a11b" \\
+  -H "ContentType: application/json" \\
+  -d '{
+    "orderId": "ORD_9912",
+    "amount": 18450,
+    "paymentMethod": "COD",
+    "deviceId": "dev_hash_8f21"
+  }'`,
+            python: `import trustx
+
+client = trustx.Client(api_key="tx_live_8f93a11b")
+
+decision = client.risk.evaluate(
+    order_id="ORD_9912",
+    amount=18450,
+    payment_method="COD",
+    device_id="dev_hash_8f21"
+)
+
+print(decision.action) # Output: VERIFY`,
+            node: `import { TrustX } from '@trustx/sdk';
+
+const trustx = new TrustX({ apiKey: 'tx_live_8f93a11b' });
+
+const decision = await trustx.risk.evaluate({
+  orderId: 'ORD_9912',
+  amount: 18450,
+  paymentMethod: 'COD',
+  deviceId: 'dev_hash_8f21'
+});
+
+console.log(decision.action);`
+        };
+
+        function switchTab(lang) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white/10', 'text-white');
+                btn.classList.add('text-gray-400');
+            });
+            document.getElementById(`tab-${lang}`).classList.add('bg-white/10', 'text-white');
+            document.getElementById('code-block').innerText = codeSnippets[lang];
+        }
+
+        function copyCode() {
+            const text = document.getElementById('code-block').innerText;
+            navigator.clipboard.writeText(text);
+            showToast("Snippet copied to clipboard");
+        }
+    </script>
+</body>
+</html>
