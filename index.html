@@ -502,71 +502,117 @@
 
             <div class="glass-card rounded-2xl border border-white/10 overflow-hidden">
                 <div class="bg-black/80 px-6 py-4 flex items-center justify-between border-b border-white/10">
-                    <div class="flex space-x-2">
-                        <button onclick="switchTab('curl')" id="tab-curl" class="tab-btn active font-mono text-xs px-3 py-1.5 rounded bg-white/10 text-white">cURL</button>
-                        <button onclick="switchTab('python')" id="tab-python" class="tab-btn font-mono text-xs px-3 py-1.5 rounded text-gray-400 hover:text-white">Python</button>
-                        <button onclick="switchTab('node')" id="tab-node" class="tab-btn font-mono text-xs px-3 py-1.5 rounded text-gray-400 hover:text-white">Node.js</button>
+                    <div class="flex items-center space-x-3">
+                        <div class="flex space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                        </div>
+                        <span class="font-mono text-xs text-gray-400 border-l border-white/10 pl-3">POST /v1/evaluate</span>
                     </div>
-                    <button onclick="copyCode()" class="text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-mono">
+                    <button onclick="copyCodeSnippet()" class="text-xs font-mono text-gray-400 hover:text-white flex items-center space-x-1">
                         <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                        <span>Copy Snippet</span>
+                        <span>Copy SDK Code</span>
                     </button>
                 </div>
+                <div class="p-6 font-mono text-xs text-gray-300 overflow-x-auto bg-black/50">
+<pre id="code-snippet"><span class="text-brand-purple">import</span> { TrustXClient } <span class="text-brand-purple">from</span> <span class="text-emerald-400">'@trustx/sdk'</span>;
 
-                <div class="p-6 font-mono text-xs overflow-x-auto bg-black/60 text-gray-300">
-                    <pre id="code-block" class="leading-relaxed">curl -X POST https://api.trustx.io/v1/risk/evaluate \
-  -H "Authorization: Bearer tx_live_8f93a11b" \
-  -H "ContentType: application/json" \
-  -d '{
-    "orderId": "ORD_9912",
-    "amount": 18450,
-    "paymentMethod": "COD",
-    "deviceId": "dev_hash_8f21"
-  }'</pre>
+<span class="text-brand-purple">const</span> trustx = <span class="text-brand-blue">new</span> TrustXClient({ apiKey: process.env.TRUSTX_SECRET_KEY });
+
+<span class="text-brand-purple">export async function</span> <span class="text-blue-400">evaluateCheckout</span>(orderData) {
+  <span class="text-brand-purple">const</span> decision = <span class="text-brand-purple">await</span> trustx.decisions.<span class="text-blue-400">evaluate</span>({
+    orderId: orderData.id,
+    amount: orderData.total,
+    currency: <span class="text-emerald-400">'INR'</span>,
+    customer: {
+      email: orderData.email,
+      phone: orderData.phone,
+    },
+    telemetryToken: orderData.sdkToken,
+  });
+
+  <span class="text-brand-purple">if</span> (decision.action === <span class="text-emerald-400">'BLOCK'</span>) {
+    <span class="text-brand-purple">throw new</span> Error(<span class="text-emerald-400">'High risk transaction rejected by TrustX infrastructure'</span>);
+  }
+
+  <span class="text-brand-purple">return</span> decision;
+}</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-24 border-b border-white/5 bg-black/20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-3xl mb-16">
+                <span class="font-mono text-xs text-brand-lavender uppercase tracking-widest font-semibold">System Architecture</span>
+                <h2 class="font-display text-3xl md:text-4xl font-bold mt-2 mb-4">Ultra-Low Latency Infrastructure</h2>
+                <p class="text-gray-400 text-sm">
+                    Built from the ground up to handle high concurrency e-commerce traffic with deterministic sub-15ms response times.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-xl space-y-3 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white">Redis-Backed Edge Caching</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        In-memory key-value lookups deliver instant device fingerprinting and real-time velocity calculations at edge nodes.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl space-y-3 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white">PostgreSQL Risk Graph</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Relational graph storage maps inter-connected device IDs, payment methods, and shipping addresses across merchants.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 rounded-xl space-y-3 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-brand-lavender/10 border border-brand-lavender/20 flex items-center justify-center text-brand-lavender">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-white">FastAPI Decision Pipeline</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Asynchronous Python core processes risk vectors in parallel with configurable timeout circuit breakers.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-16 border-t border-white/5 bg-black/80">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+    <footer class="py-12 border-t border-white/10 bg-black/60">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center space-x-3">
                 <div class="brand-logo-mark">
                     <div class="brand-logo-rear"></div>
                     <div class="brand-logo-front"></div>
                 </div>
-                <span class="font-display font-bold text-xl tracking-tight text-white">TrustX</span>
+                <span class="font-display font-bold text-lg text-white">TrustX</span>
             </div>
-
-            <p class="text-xs text-gray-500 font-mono">
-                © 2026 TrustX Technologies Inc. All rights reserved. Real Time Risk Decisioning Layer.
-            </p>
-
-            <div class="flex items-center space-x-6 text-xs text-gray-400">
-                <a href="#" class="hover:text-white transition">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition">Terms of Service</a>
-                <a href="#" class="hover:text-white transition">Security Spec</a>
+            <div class="text-xs text-gray-500 font-mono">
+                &copy; 2026 TrustX Commerce Risk Intelligence Infrastructure. All rights reserved.
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- JavaScript Logic -->
     <script>
+        // Initialize Lucide Icons
         lucide.createIcons();
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }, 3000);
-        }
-
+        // Modal Handler
         function toggleModal(show) {
             const modal = document.getElementById('modal');
-            if(show) {
+            if (show) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             } else {
@@ -578,29 +624,53 @@
         function handleModalSubmit(e) {
             e.preventDefault();
             toggleModal(false);
-            showToast("Access request submitted. Our team will reach out shortly.");
+            showToast('Access request received. An enterprise lead will reach out shortly.');
         }
 
-        /* Mobile Demo Navigation */
-        function goToScreen(screenTarget) {
+        // Toast Handler
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Copy SDK Code
+        function copyCodeSnippet() {
+            const snippet = document.getElementById('code-snippet').innerText;
+            navigator.clipboard.writeText(snippet);
+            showToast('SDK code copied to clipboard');
+        }
+
+        // Mobile Frame Flow Logic
+        function goToScreen(screenName) {
             const screens = ['store', 'cart', 'trustx'];
             screens.forEach(s => {
                 const el = document.getElementById(`screen-${s}`);
-                el.classList.add('opacity-0', 'pointer-events-none');
-                el.classList.remove('opacity-100');
+                if (s === screenName) {
+                    el.classList.remove('opacity-0', 'pointer-events-none');
+                    el.classList.add('opacity-100');
+                } else {
+                    el.classList.add('opacity-0', 'pointer-events-none');
+                    el.classList.remove('opacity-100');
+                }
             });
 
-            const activeEl = document.getElementById(`screen-${screenTarget}`);
-            activeEl.classList.remove('opacity-0', 'pointer-events-none');
-            activeEl.classList.add('opacity-100');
+            if (screenName === 'trustx') {
+                const evalDiv = document.getElementById('trustx-evaluating');
+                const resultDiv = document.getElementById('trustx-result');
+                evalDiv.classList.remove('hidden');
+                resultDiv.classList.add('hidden');
 
-            if(screenTarget === 'trustx') {
-                document.getElementById('trustx-evaluating').classList.remove('hidden');
-                document.getElementById('trustx-result').classList.add('hidden');
                 setTimeout(() => {
-                    document.getElementById('trustx-evaluating').classList.add('hidden');
-                    document.getElementById('trustx-result').classList.remove('hidden');
-                }, 1000);
+                    evalDiv.classList.add('hidden');
+                    resultDiv.classList.remove('hidden');
+                }, 1200);
             }
         }
 
@@ -608,107 +678,125 @@
             goToScreen('store');
         }
 
-        /* Telemetry Simulation Logic */
+        // Interactive Telemetry Sandbox Data
         const scenarios = {
             clean: {
                 id: 'ORD_88419',
-                payload: `{\n  "orderAmount": 18450,\n  "paymentMethod": "UPI",\n  "location": "Bengaluru",\n  "deviceAgeDays": 420,\n  "velocityWindowMs": 12\n}`,
-                latency: '3.8ms',
-                decision: '<span class="text-emerald-400">APPROVE</span>',
+                payload: {\n  "orderAmount": 299.00,\n  "paymentMethod": "CARD",\n  "location": "Bengaluru",\n  "deviceAgeDays": 142,\n  "velocityWindowMs": 8400\n},
+                latency: '4.2ms',
+                decision: 'APPROVE',
+                decisionColor: 'text-emerald-400',
                 confidence: '99.8%',
                 signals: [
-                    { name: 'Device Fingerprint', status: 'VERIFIED', ok: true },
-                    { name: 'Address Intelligence', status: 'MATCHED', ok: true },
-                    { name: 'Payment Behavior', status: 'LOW RISK', ok: true },
-                    { name: 'Velocity Check', status: 'NORMAL', ok: true },
-                    { name: 'Account Abuse', status: 'CLEAN', ok: true },
-                    { name: 'Return Risk', status: 'LOW', ok: true }
+                    { name: 'Device Age', value: '142 Days', status: 'clean' },
+                    { name: 'IP Reputation', value: 'Residential (Low Risk)', status: 'clean' },
+                    { name: 'Velocity', value: '1 order / 30 days', status: 'clean' },
+                    { name: 'Address Check', value: 'AVS Match Passed', status: 'clean' },
+                    { name: 'Card Country', value: 'Domestic', status: 'clean' },
+                    { name: 'Behavior Vector', value: 'Natural Session', status: 'clean' }
                 ]
             },
             cod: {
-                id: 'ORD_99210',
-                payload: `{\n  "orderAmount": 42000,\n  "paymentMethod": "COD",\n  "location": "Tier 3 Pin Code",\n  "deviceAgeDays": 0.1,\n  "velocityWindowMs": 4500\n}`,
-                latency: '6.4ms',
-                decision: '<span class="text-amber-400">VERIFY (STEP UP OTP)</span>',
-                confidence: '84.2%',
+                id: 'ORD_99102',
+                payload: {\n  "orderAmount": 18450.00,\n  "paymentMethod": "COD",\n  "location": "Tier-3 Sector",\n  "deviceAgeDays": 0.2,\n  "velocityWindowMs": 420\n},
+                latency: '11.8ms',
+                decision: 'BLOCK / RTO HIGH RISK',
+                decisionColor: 'text-red-400',
+                confidence: '94.2%',
                 signals: [
-                    { name: 'Device Fingerprint', status: 'NEW DEVICE', ok: false },
-                    { name: 'Address Intelligence', status: 'HIGH RTO AREA', ok: false },
-                    { name: 'Payment Behavior', status: 'COD UNVERIFIED', ok: false },
-                    { name: 'Velocity Check', status: 'ELEVATED', ok: false },
-                    { name: 'Account Abuse', status: 'CLEAN', ok: true },
-                    { name: 'Return Risk', status: 'HIGH', ok: false }
+                    { name: 'Device Age', value: '4.8 Hours', status: 'danger' },
+                    { name: 'IP Reputation', value: 'Datacenter Proxy', status: 'danger' },
+                    { name: 'Velocity', value: '5 orders / 10 min', status: 'danger' },
+                    { name: 'Address Check', value: 'Incomplete Pincode', status: 'warning' },
+                    { name: 'Payment Vector', value: 'COD High Value', status: 'warning' },
+                    { name: 'Behavior Vector', value: 'Bot Script Pattern', status: 'danger' }
                 ]
             },
             promo: {
-                id: 'ORD_10042',
-                payload: `{\n  "orderAmount": 1200,\n  "paymentMethod": "CARD",\n  "promoCode": "WELCOME50",\n  "deviceAgeDays": 0.01,\n  "velocityWindowMs": 110\n}`,
-                latency: '5.1ms',
-                decision: '<span class="text-rose-500">BLOCK PROMO</span>',
-                confidence: '96.5%',
+                id: 'ORD_40182',
+                payload: {\n  "orderAmount": 12.00,\n  "paymentMethod": "UPI",\n  "promoCode": "WELCOME100",\n  "deviceAgeDays": 0.05,\n  "velocityWindowMs": 120\n},
+                latency: '6.5ms',
+                decision: 'CHALLENGE (CAPTCHA)',
+                decisionColor: 'text-amber-400',
+                confidence: '88.5%',
                 signals: [
-                    { name: 'Device Fingerprint', status: 'DUPLICATE CLONE', ok: false },
-                    { name: 'Address Intelligence', status: 'MATCHED', ok: true },
-                    { name: 'Payment Behavior', status: 'CARD REUSE', ok: false },
-                    { name: 'Velocity Check', status: 'SPIKE DETECTED', ok: false },
-                    { name: 'Account Abuse', status: 'PROMO FARM', ok: false },
-                    { name: 'Return Risk', status: 'NORMAL', ok: true }
+                    { name: 'Device Age', value: '1.2 Hours', status: 'danger' },
+                    { name: 'Promo Usage', value: '12 uses across subnet', status: 'danger' },
+                    { name: 'Velocity', value: 'Rapid Coupon Retry', status: 'warning' },
+                    { name: 'Address Check', value: 'New Delivery Spot', status: 'neutral' },
+                    { name: 'Fingerprint Match', value: 'Cloned Device ID', status: 'danger' },
+                    { name: 'Behavior Vector', value: 'Automated Clickstream', status: 'warning' }
                 ]
             }
         };
 
-        function triggerScenario(type) {
+        function renderScenario(key) {
+            const sc = scenarios[key];
+            document.getElementById('order-id').textContent = sc.id;
+            document.getElementById('payload-display').textContent = JSON.stringify(sc.payload, null, 2);
+            document.getElementById('latency-val').textContent = sc.latency;
+            
+            const decOutput = document.getElementById('decision-output');
+            decOutput.innerHTML = `<span class="${sc.decisionColor}">${sc.decision}</span>`;
+            
+            document.getElementById('confidence-val').textContent = sc.confidence;
+
+            const grid = document.getElementById('signals-grid');
+            grid.innerHTML = sc.signals.map(sig => {
+                let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (sig.status === 'danger') badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+                if (sig.status === 'warning') badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                if (sig.status === 'neutral') badgeClass = 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+
+                return `
+                    <div class="p-3 bg-black/40 rounded-xl border border-white/5 font-mono text-[11px] space-y-1">
+                        <div class="text-gray-400 truncate">${sig.name}</div>
+                        <div class="font-bold text-white truncate">${sig.value}</div>
+                        <span class="inline-block px-1.5 py-0.5 rounded text-[9px] border ${badgeClass} font-semibold uppercase">${sig.status}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function triggerScenario(key) {
             document.querySelectorAll('.scenario-btn').forEach(btn => {
                 btn.classList.remove('border-brand-purple', 'text-white');
                 btn.classList.add('text-gray-400');
             });
-            document.getElementById(`btn-${type}`).classList.add('border-brand-purple', 'text-white');
-
-            const data = scenarios[type];
-            document.getElementById('order-id').innerText = data.id;
-            document.getElementById('payload-display').innerText = data.payload;
-            document.getElementById('latency-val').innerText = data.latency;
-            document.getElementById('decision-output').innerHTML = data.decision;
-            document.getElementById('confidence-val').innerText = data.confidence;
-
-            const grid = document.getElementById('signals-grid');
-            grid.innerHTML = '';
-            data.signals.forEach(s => {
-                const card = document.createElement('div');
-                card.className = `p-3 rounded-lg border font-mono text-[11px] ${s.ok ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/5 border-rose-500/20 text-rose-300'}`;
-                card.innerHTML = `<div class="text-gray-400 text-[10px] uppercase">${s.name}</div><div class="font-bold mt-1">${s.status}</div>`;
-                grid.appendChild(card);
-            });
+            const activeBtn = document.getElementById(`btn-${key}`);
+            activeBtn.classList.add('border-brand-purple', 'text-white');
+            activeBtn.classList.remove('text-gray-400');
+            renderScenario(key);
         }
 
-        triggerScenario('clean');
+        // Fault Sandbox Logic
+        const faultState = { device: false, graph: false };
 
-        /* Fault Injection */
-        let activeFaults = { device: false, graph: false };
-
-        function toggleFault(type, value) {
-            activeFaults[type] = value;
+        function toggleFault(type, isFaulty) {
+            faultState[type] = isFaulty;
             const statusChip = document.getElementById('fault-status-chip');
             const policyMode = document.getElementById('fault-policy-mode');
             const logs = document.getElementById('fault-logs');
 
-            if(activeFaults.device || activeFaults.graph) {
+            if (faultState.device || faultState.graph) {
                 statusChip.className = "px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold";
-                statusChip.innerText = "DEGRADED EXECUTION MODE";
-                policyMode.innerText = "STEP UP VERIFICATION ENFORCED";
-                policyMode.className = "text-amber-400 font-bold";
+                statusChip.textContent = "DEGRADED EXECUTION";
+                policyMode.textContent = "CONSERVATIVE FALLBACK MODE";
 
-                logs.innerHTML = `
-                    <div class="text-amber-400">[WARNING] Timeout SLA breached on sub component. Circuit breaker tripped.</div>
-                    <div class="text-white">[POLICY] Isolating degraded microservices. Switching to Step Up decisioning rules.</div>
-                    <div class="text-gray-400">[AUDIT] Zero unvetted pass through approvals issued. Containment intact.</div>
-                `;
+                let newLogs = '';
+                if (faultState.device) {
+                    newLogs += `<div class="text-red-400">[TIMEOUT] Device Fingerprint DB timed out after 8.0ms.</div>`;
+                    newLogs += `<div class="text-amber-400">[CIRCUIT] Isolating Device DB microservice. Falling back to IP velocity rules.</div>`;
+                }
+                if (faultState.graph) {
+                    newLogs += `<div class="text-red-400">[TIMEOUT] Graph Partition non-responsive after 12.0ms.</div>`;
+                    newLogs += `<div class="text-amber-400">[CIRCUIT] Graph partition detached. Bypassing cross-merchant graph traversal.</div>`;
+                }
+                logs.innerHTML = newLogs;
             } else {
                 statusChip.className = "px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold";
-                statusChip.innerText = "ALL SYSTEMS NOMINAL";
-                policyMode.innerText = "PASS THROUGH OPTIMIZED";
-                policyMode.className = "text-white font-bold";
-
+                statusChip.textContent = "ALL SYSTEMS NOMINAL";
+                policyMode.textContent = "PASS THROUGH OPTIMIZED";
                 logs.innerHTML = `
                     <div class="text-emerald-400">[SYSTEM] All 14 telemetry pipelines operating within 15ms SLA bounds.</div>
                     <div class="text-gray-500">[POLICY] Primary rule engine executing with standard confidence parameters.</div>
@@ -716,57 +804,8 @@
             }
         }
 
-        /* Developer Tabs */
-        const codeSnippets = {
-            curl: `curl -X POST https://api.trustx.io/v1/risk/evaluate \\
-  -H "Authorization: Bearer tx_live_8f93a11b" \\
-  -H "ContentType: application/json" \\
-  -d '{
-    "orderId": "ORD_9912",
-    "amount": 18450,
-    "paymentMethod": "COD",
-    "deviceId": "dev_hash_8f21"
-  }'`,
-            python: `import trustx
-
-client = trustx.Client(api_key="tx_live_8f93a11b")
-
-decision = client.risk.evaluate(
-    order_id="ORD_9912",
-    amount=18450,
-    payment_method="COD",
-    device_id="dev_hash_8f21"
-)
-
-print(decision.action) # Output: VERIFY`,
-            node: `import { TrustX } from '@trustx/sdk';
-
-const trustx = new TrustX({ apiKey: 'tx_live_8f93a11b' });
-
-const decision = await trustx.risk.evaluate({
-  orderId: 'ORD_9912',
-  amount: 18450,
-  paymentMethod: 'COD',
-  deviceId: 'dev_hash_8f21'
-});
-
-console.log(decision.action);`
-        };
-
-        function switchTab(lang) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-white/10', 'text-white');
-                btn.classList.add('text-gray-400');
-            });
-            document.getElementById(`tab-${lang}`).classList.add('bg-white/10', 'text-white');
-            document.getElementById('code-block').innerText = codeSnippets[lang];
-        }
-
-        function copyCode() {
-            const text = document.getElementById('code-block').innerText;
-            navigator.clipboard.writeText(text);
-            showToast("Snippet copied to clipboard");
-        }
+        // Initial Load Configuration
+        renderScenario('clean');
     </script>
 </body>
 </html>
