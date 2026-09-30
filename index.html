@@ -13,18 +13,21 @@ import {
   Copy,
   Check,
   X,
-  FileText
+  FileText,
+  Lock,
+  Layers,
+  ChevronRight
 } from 'lucide-react';
 
-// Custom high-fidelity SVG icon for the Trust-X overlapping parallelogram cards logo mark
+// Custom SVG icon for the Trust-X overlapping slanted rounded cards logo mark
 const TrustXLogoMark = ({ className = "w-8 h-8" }) => (
   <svg viewBox="0 0 100 80" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="txBackCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="txBackCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#3B82F6" />
         <stop offset="100%" stopColor="#4F46E5" />
       </linearGradient>
-      <linearGradient id="txFrontCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="txFrontCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#E9D5FF" />
         <stop offset="100%" stopColor="#C084FC" />
       </linearGradient>
@@ -37,7 +40,7 @@ const TrustXLogoMark = ({ className = "w-8 h-8" }) => (
       height="38"
       rx="6"
       transform="skewX(-16)"
-      fill="url(#txBackCard)"
+      fill="url(#txBackCardGrad)"
     />
     {/* Front overlapping slanted card */}
     <rect
@@ -47,7 +50,7 @@ const TrustXLogoMark = ({ className = "w-8 h-8" }) => (
       height="38"
       rx="6"
       transform="skewX(-16)"
-      fill="url(#txFrontCard)"
+      fill="url(#txFrontCardGrad)"
     />
   </svg>
 );
@@ -186,7 +189,7 @@ export default function App() {
     setIsEvaluating(true);
     setTimeout(() => {
       setIsEvaluating(false);
-    }, 200);
+    }, 250);
   };
 
   // Illustrative RTO Savings Calculator State
@@ -215,20 +218,23 @@ export default function App() {
   }, [monthlyOrders, currentRtoRate, avgFreightCost]);
 
   const copySnippet = () => {
-    navigator.clipboard?.writeText(JSON.stringify(simulatorOutput, null, 2));
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(JSON.stringify(simulatorOutput, null, 2));
+    }
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-[#0B0F17] text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-black">
-      {}
+      {/* Background ambient lighting */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-600/10 rounded-full blur-[120px]" />
         <div className="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px]" />
         <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
       </div>
 
+      {/* Navigation Header */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#0B0F17]/80 border-b border-slate-800/80 px-4 lg:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -784,6 +790,7 @@ export default function App() {
         <p>© 2026 Trust-X — Transaction Risk Intelligence Infrastructure.</p>
       </footer>
 
+      {}
       {/* Request Access Modal */}
       {isAccessModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
