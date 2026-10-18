@@ -1,913 +1,1402 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Zap,
-  ShieldCheck,
-  Database,
-  Activity,
-  Code2,
-  Terminal,
-  CheckCircle2,
-  ArrowRight,
-  Sliders,
-  Sparkles,
-  Copy,
-  Check,
-  X,
-  FileText,
-  Lock,
-  Layers,
-  ChevronRight
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust-X | Commerce Risk Intelligence & Checkout Infrastructure</title>
+    <meta name="description" content="Trust-X turns transaction and behavioral signals into actionable risk intelligence, helping commerce businesses identify suspicious activity and apply appropriate checkout controls.">
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="Trust-X | Commerce Risk Intelligence">
+    <meta property="og:description" content="Real-time risk intelligence for every checkout decision.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://trustx.world">
 
-// Custom SVG icon for the Trust-X overlapping slanted rounded cards logo mark
-const TrustXLogoMark = ({ className = "w-8 h-8" }) => (
-  <svg viewBox="0 0 100 80" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="txBackCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#3B82F6" />
-        <stop offset="100%" stopColor="#4F46E5" />
-      </linearGradient>
-      <linearGradient id="txFrontCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#E9D5FF" />
-        <stop offset="100%" stopColor="#C084FC" />
-      </linearGradient>
-    </defs>
-    {/* Back slanted card */}
-    <rect
-      x="12"
-      y="8"
-      width="58"
-      height="38"
-      rx="6"
-      transform="skewX(-16)"
-      fill="url(#txBackCardGrad)"
-    />
-    {/* Front overlapping slanted card */}
-    <rect
-      x="28"
-      y="26"
-      width="58"
-      height="38"
-      rx="6"
-      transform="skewX(-16)"
-      fill="url(#txFrontCardGrad)"
-    />
-  </svg>
-);
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
-const TRUST_BADGES = [
-  { label: 'Primary Endpoint', value: 'POST /v1/risk/evaluate' },
-  { label: 'Authoritative State', value: 'PostgreSQL' },
-  { label: 'Cache Strategy', value: 'Redis Projection' },
-  { label: 'Integration Type', value: 'REST API' },
-];
+    <!-- Stylesheet -->
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-surface: #0B0F19;
+            --bg-surface-hover: #111827;
+            --border-color: #1E293B;
+            --border-highlight: #334155;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dim: #64748B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.12);
+            --accent-teal: #14B8A6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-const FEATURES = [
-  {
-    icon: Zap,
-    title: 'Real-Time Transaction Risk Decisioning',
-    description:
-      'Evaluate transaction, customer, device, address, velocity, payment, return, and network signals through a single unified API.',
-    badge: 'Core Decisioning',
-    accent: 'from-cyan-500/20 to-blue-500/10',
-    border: 'border-cyan-500/30'
-  },
-  {
-    icon: ShieldCheck,
-    title: 'COD & RTO Risk Controls',
-    description:
-      'Identify elevated COD and return-risk patterns and return merchant-configured controls such as verification, manual review, or prepaid requirements.',
-    badge: 'Margin Protection',
-    accent: 'from-indigo-500/20 to-purple-500/10',
-    border: 'border-indigo-500/30'
-  },
-  {
-    icon: Database,
-    title: 'Cross-Merchant Intelligence',
-    description:
-      'Use available customer, device, address, and network relationships to identify connected transaction risk across network nodes.',
-    badge: 'Network Signals',
-    accent: 'from-emerald-500/20 to-teal-500/10',
-    border: 'border-emerald-500/30'
-  },
-  {
-    icon: Activity,
-    title: 'Safe Degraded Operation',
-    description:
-      'PostgreSQL remains authoritative while Redis serves as a performance projection. Dependency failures are contained without silently changing risk semantics.',
-    badge: 'Deterministic Safety',
-    accent: 'from-amber-500/20 to-orange-500/10',
-    border: 'border-amber-500/30'
-  }
-];
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-export default function App() {
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [pricingMode, setPricingMode] = useState('saas'); // 'saas' | 'rto_calc'
-  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
-  const [isDocsDrawerOpen, setIsDocsDrawerOpen] = useState(false);
-  const [requestSubmitted, setRequestSubmitted] = useState(false);
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-  // Interactive Risk Simulator State
-  const [addressHistory, setAddressHistory] = useState('unverified');
-  const [deviceRisk, setDeviceRisk] = useState('normal');
-  const [velocity, setVelocity] = useState('high');
-  const [paymentMethod, setPaymentMethod] = useState('COD');
-  const [isEvaluating, setIsEvaluating] = useState(false);
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-  // Dynamic Calculation for Interactive Simulator based on M10.1 Thresholds (70 / 40 / 0)
-  const simulatorOutput = useMemo(() => {
-    let score = 10;
-    let flags = [];
+        ul {
+            list-style: none;
+        }
 
-    if (addressHistory === 'unverified') {
-      score += 35;
-      flags.push('MISSING_DOOR_NUM_OR_LANDMARK');
-    } else if (addressHistory === 'blacklisted') {
-      score += 65;
-      flags.push('FLAGGED_ADDRESS_PATTERN_MATCH');
-    }
+        /* Utility Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
 
-    if (deviceRisk === 'proxy') {
-      score += 25;
-      flags.push('HIGH_RISK_VPN_OR_PROXY');
-    } else if (deviceRisk === 'emu') {
-      score += 45;
-      flags.push('EMULATOR_DEVICE_FINGERPRINT');
-    }
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    if (velocity === 'high') {
-      score += 20;
-      flags.push('PAYMENT_SESSION_VELOCITY_SPREE');
-    }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
+        }
 
-    if (paymentMethod === 'COD') {
-      score += 10;
-    } else {
-      score = Math.max(5, score - 25);
-    }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            letter-spacing: -0.025em;
+        }
 
-    // M10.1 Decision Mapping based on 70 / 40 / 0 thresholds
-    let decision = 'APPROVE';
-    let merchantControl = 'APPROVE';
+        .brand-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--accent), #2563EB);
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
 
-    if (score >= 70) {
-      decision = 'INSPECT';
-      merchantControl = 'PREPAID_REQUIRED';
-    } else if (score >= 50) {
-      decision = 'REVIEW';
-      merchantControl = 'MANUAL_REVIEW';
-    } else if (score >= 40) {
-      decision = 'VERIFY';
-      merchantControl = 'ADDITIONAL_VERIFICATION';
-    } else {
-      decision = 'APPROVE';
-      merchantControl = 'APPROVE';
-    }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
 
-    return {
-      api_version: 'v1',
-      endpoint: '/v1/risk/evaluate',
-      mode: 'SIMULATION',
-      risk_score: score,
-      decision: decision, // APPROVE | VERIFY | REVIEW | INSPECT
-      merchant_control: merchantControl, // APPROVE | ADDITIONAL_VERIFICATION | MANUAL_REVIEW | RETURN_INSPECTION | PREPAID_REQUIRED
-      thresholds_applied: {
-        inspect: 70,
-        verify: 40,
-        approve_below: 40
-      },
-      evaluation_details: {
-        authoritative_store: 'postgresql',
-        velocity_cache_status: 'degraded_optional_projection',
-        risk_flags: flags
-      }
-    };
-  }, [addressHistory, deviceRisk, velocity, paymentMethod]);
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
 
-  const triggerEvaluation = () => {
-    setIsEvaluating(true);
-    setTimeout(() => {
-      setIsEvaluating(false);
-    }, 250);
-  };
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
 
-  // Illustrative RTO Savings Calculator State
-  const [monthlyOrders, setMonthlyOrders] = useState(15000);
-  const [currentRtoRate, setCurrentRtoRate] = useState(22);
-  const [avgFreightCost, setAvgFreightCost] = useState(140);
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-  const rtoCalculations = useMemo(() => {
-    const totalCodOrders = monthlyOrders * 0.65; // ~65% COD default assumption
-    const currentRtoOrders = totalCodOrders * (currentRtoRate / 100);
-    const currentRtoLoss = currentRtoOrders * avgFreightCost;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
 
-    // Illustrative conservative reduction simulation (~35% reduction assumption for estimate)
-    const projectedRtoRate = Math.max(6, currentRtoRate * 0.65);
-    const newRtoOrders = totalCodOrders * (projectedRtoRate / 100);
-    const newRtoLoss = newRtoOrders * avgFreightCost;
+        .btn-primary {
+            background-color: var(--text-main);
+            color: var(--bg-base);
+        }
 
-    const monthlySavings = currentRtoLoss - newRtoLoss;
+        .btn-primary:hover {
+            background-color: #E2E8F0;
+        }
 
-    return {
-      currentLoss: Math.round(currentRtoLoss),
-      newLoss: Math.round(newRtoLoss),
-      monthlySavings: Math.round(monthlySavings),
-      reducedRate: projectedRtoRate.toFixed(1)
-    };
-  }, [monthlyOrders, currentRtoRate, avgFreightCost]);
+        .btn-secondary {
+            background-color: var(--bg-surface);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
 
-  const copySnippet = () => {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(JSON.stringify(simulatorOutput, null, 2));
-    }
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
+        .btn-secondary:hover {
+            background-color: var(--bg-surface-hover);
+            border-color: var(--border-highlight);
+        }
 
-  return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-black">
-      {/* Background ambient lighting */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-600/10 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px]" />
-        <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
-      </div>
+        /* Mobile Menu Toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
 
-      {/* Navigation Header */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#0B0F17]/80 border-b border-slate-800/80 px-4 lg:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <TrustXLogoMark className="w-9 h-8 drop-shadow-[0_0_12px_rgba(168,85,247,0.3)]" />
-            <span className="font-bold text-xl tracking-tight text-white font-sans">
-              Trust<span className="text-purple-400">-X</span>
-            </span>
-            <span className="ml-2 px-2 py-0.5 text-[10px] font-mono tracking-wider text-purple-300 bg-purple-950/60 border border-purple-800/50 rounded-full">
-              M10.1 SPEC
-            </span>
-          </div>
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 5rem;
+            position: relative;
+        }
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-            <a href="#features" className="hover:text-cyan-400 transition-colors">Architecture</a>
-            <a href="#simulator" className="hover:text-cyan-400 transition-colors">Risk Simulator</a>
-            <a href="#pricing" className="hover:text-cyan-400 transition-colors">Commercials</a>
-            <button onClick={() => setIsDocsDrawerOpen(true)} className="hover:text-cyan-400 transition-colors">Developer Docs</button>
-          </div>
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 350px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(3, 7, 18, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-          <div className="flex items-center gap-3">
-            <a
-              href="#simulator"
-              className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-200 transition-all flex items-center gap-1.5"
-            >
-              <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Sandbox</span>
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 4vw, 3.75rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-content p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-sub {
+            font-size: 0.8125rem;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        /* Dashboard Preview Widget */
+        .dashboard-preview {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .demo-badge {
+            font-size: 0.6875rem;
+            font-family: var(--font-mono);
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .tx-card-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tx-metric {
+            background: var(--bg-base);
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tx-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .tx-metric-value {
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .tx-signal-list {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .signal-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+            padding: 0.375rem 0;
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+        }
+
+        .signal-item:last-child {
+            border-bottom: none;
+        }
+
+        .signal-status-ok { color: #34D399; }
+        .signal-status-warn { color: #FBBF24; }
+        .signal-status-alert { color: #F87171; }
+
+        .tx-decision-box {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .tx-decision-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.375rem;
+            font-weight: 600;
+        }
+
+        .tx-decision-text {
+            font-size: 0.875rem;
+            color: var(--text-main);
+        }
+
+        /* Section Commons */
+        section {
+            padding: 6rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            max-width: 650px;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.0625rem;
+        }
+
+        /* Problem & Opportunity */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .concept-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .concept-card:hover {
+            border-color: var(--border-highlight);
+            transform: translateY(-2px);
+        }
+
+        .concept-number {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .concept-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-card p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        /* Platform Overview Workflow */
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .workflow-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            position: relative;
+        }
+
+        .workflow-step-id {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .workflow-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Capabilities Grid */
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .capability-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .capability-card:hover {
+            border-color: var(--border-highlight);
+            background: var(--bg-surface-hover);
+        }
+
+        .capability-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+        }
+
+        .capability-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .capability-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Interactive Demo Section */
+        .demo-section-wrapper {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2.5rem;
+        }
+
+        .demo-tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .demo-tab {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .demo-tab.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .demo-parameters {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .demo-param-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(30, 41, 59, 0.4);
+            font-size: 0.875rem;
+        }
+
+        .demo-param-row:last-child {
+            border-bottom: none;
+        }
+
+        .demo-param-key {
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .demo-param-val {
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-weight: 500;
+        }
+
+        /* Developer API Section */
+        .api-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .code-window {
+            background: #020617;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #090D16;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .code-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .copy-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            color: var(--text-main);
+            border-color: var(--border-highlight);
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            color: #E2E8F0;
+        }
+
+        .code-keyword { color: #F472B6; }
+        .code-string { color: #34D399; }
+        .code-number { color: #60A5FA; }
+        .code-comment { color: #64748B; font-style: italic; }
+
+        /* Use Cases Grid */
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .use-case-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .use-case-card:hover {
+            border-color: var(--border-highlight);
+        }
+
+        .use-case-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .use-case-card p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        /* Architecture Flow */
+        .arch-flow-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .arch-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 2rem auto 0;
+            position: relative;
+        }
+
+        .arch-node {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.25rem 1rem;
+            width: 200px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .arch-node.highlight {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .arch-connector {
+            flex: 1;
+            height: 2px;
+            background: var(--border-color);
+            position: relative;
+            margin: 0 -10px;
+            z-index: 1;
+        }
+
+        .arch-connector::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 6px solid var(--border-color);
+        }
+
+        /* Security & Responsibility */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .security-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 0.75rem;
+        }
+
+        .security-item h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .security-item p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        /* Company Section */
+        .company-banner {
+            background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .company-banner h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .company-banner p {
+            color: var(--text-muted);
+            font-size: 1.0625rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-base);
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 0 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand p {
+            margin-top: 1rem;
+            color: var(--text-dim);
+            font-size: 0.8125rem;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            color: var(--text-main);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .footer-col ul {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .footer-col a:hover {
+            color: var(--text-main);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .hero-grid, .api-grid, .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            .workflow-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .problem-grid, .capabilities-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .arch-diagram {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .arch-connector {
+                width: 2px;
+                height: 30px;
+                margin: 0;
+            }
+            .arch-connector::after {
+                right: -4px;
+                top: auto;
+                bottom: 0;
+                border-top: 6px solid var(--border-color);
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+            }
+            .arch-node {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links, .nav-actions .btn-secondary {
+                display: none;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .workflow-steps, .problem-grid, .capabilities-grid, .use-cases-grid, .security-grid, .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-grid {
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="#" class="brand">
+                <div class="brand-icon">X</div>
+                <span>Trust-X</span>
             </a>
-            <button
-              onClick={() => setIsAccessModalOpen(true)}
-              className="px-4 py-2 text-xs font-semibold rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-black font-mono tracking-wide transition-all shadow-md shadow-cyan-500/20"
-            >
-              Get API Keys
-            </button>
-          </div>
+            <nav class="nav-links">
+                <a href="#platform">Platform</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#capabilities">Capabilities</a>
+                <a href="#developers">Developers</a>
+                <a href="#use-cases">Use Cases</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="#contact" class="btn btn-secondary">Talk to Us</a>
+                <button class="mobile-toggle" aria-label="Toggle navigation menu">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
         </div>
-      </nav>
+    </header>
 
-      <main className="relative z-10">
-        {}
-        <section className="pt-16 pb-20 px-4 lg:px-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-800/60 text-cyan-400 text-xs font-mono">
-                <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span>M10.1 Verified Architecture</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white">
-                Transaction Risk <br />
-                <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-                  Intelligence Infrastructure
-                </span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-400 max-w-2xl font-normal leading-relaxed">
-                API-first transaction risk intelligence for e-commerce, with real-time risk scoring, decisioning, and merchant-controlled actions.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                <a
-                  href="#simulator"
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all"
-                >
-                  <span>Explore Simulator</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-                <button
-                  onClick={() => setIsDocsDrawerOpen(true)}
-                  className="px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-medium text-sm flex items-center justify-center gap-2 transition-all"
-                >
-                  <Code2 className="w-4 h-4 text-cyan-400" />
-                  <span>API Documentation</span>
-                </button>
-              </div>
-
-              <div className="pt-8 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {TRUST_BADGES.map((badge, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <p className="text-sm font-bold font-mono text-cyan-400">{badge.value}</p>
-                    <p className="text-xs text-slate-500 font-medium">{badge.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Architecture Overview Card */}
-            <div className="lg:col-span-5">
-              <div className="relative rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-2xl backdrop-blur-xl space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-cyan-400" />
-                    <span className="text-xs font-semibold text-slate-300">FastAPI + PostgreSQL Pipeline</span>
-                  </div>
-                  <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> VERIFIED API
-                  </span>
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <h1>Make every checkout decision smarter.</h1>
+                    <p>Trust-X turns transaction and behavioral signals into actionable risk intelligence, helping commerce businesses identify suspicious activity and apply appropriate checkout controls.</p>
+                    <div class="hero-cta">
+                        <a href="#platform" class="btn btn-primary">Explore the Platform</a>
+                        <a href="#developers" class="btn btn-secondary">View API Example</a>
+                    </div>
+                    <div class="hero-sub">Built for real-time commerce risk evaluation.</div>
                 </div>
 
-                <div className="space-y-3 font-mono text-xs">
-                  <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                    <span className="text-slate-500">AUTHORITATIVE STORE</span>
-                    <p className="text-slate-200 font-bold">PostgreSQL Database</p>
-                  </div>
-                  <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                    <span className="text-slate-500">CACHE PROJECTION</span>
-                    <p className="text-slate-200 font-bold">Redis (Degraded Fallback Optional)</p>
-                  </div>
-                  <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                    <span className="text-slate-500">PRIMARY EVALUATION API</span>
-                    <p className="text-cyan-400 font-bold">POST /v1/risk/evaluate</p>
-                  </div>
+                <!-- Illustrative Risk Dashboard Widget -->
+                <div class="dashboard-preview" id="hero-dashboard">
+                    <div class="dashboard-header">
+                        <span style="font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 500;">Evaluation Stream #8921</span>
+                        <span class="demo-badge">Illustrative demo</span>
+                    </div>
+                    <div class="tx-card-row">
+                        <div class="tx-metric">
+                            <div class="tx-metric-label">Order Amount</div>
+                            <div class="tx-metric-value" id="dash-amount">₹4,250.00</div>
+                        </div>
+                        <div class="tx-metric">
+                            <div class="tx-metric-label">Risk Assessment</div>
+                            <div class="tx-metric-value" id="dash-risk" style="color: #34D399;">Low Risk</div>
+                        </div>
+                    </div>
+                    <div class="tx-signal-list">
+                        <div class="signal-item">
+                            <span style="color: var(--text-muted);">Transaction context</span>
+                            <span class="signal-status-ok" id="dash-sig-1">Verified profile</span>
+                        </div>
+                        <div class="signal-item">
+                            <span style="color: var(--text-muted);">Behavioral pattern</span>
+                            <span class="signal-status-ok" id="dash-sig-2">Consistent velocity</span>
+                        </div>
+                        <div class="signal-item">
+                            <span style="color: var(--text-muted);">Device telemetry</span>
+                            <span class="signal-status-ok" id="dash-sig-3">Standard session</span>
+                        </div>
+                    </div>
+                    <div class="tx-decision-box">
+                        <div class="tx-decision-title">Recommended Control</div>
+                        <div class="tx-decision-text" id="dash-control">Standard fulfillment workflow authorized. No additional verification needed.</div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </section>
 
-        {}
-        <section id="features" className="py-20 px-4 lg:px-8 border-t border-slate-800/60 bg-slate-950/40">
-          <div className="max-w-7xl mx-auto space-y-12">
-            <div className="text-center max-w-2xl mx-auto space-y-3">
-              <h2 className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Platform Capabilities</h2>
-              <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                Designed for low-latency transaction risk decisioning.
-              </p>
-              <p className="text-sm text-slate-400">
-                Built specifically for checkout and fulfillment workflows with deterministic risk scoring and merchant-defined action controls.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {FEATURES.map((feat, idx) => {
-                const IconComp = feat.icon;
-                return (
-                  <div
-                    key={idx}
-                    className={`p-6 rounded-2xl bg-slate-900/60 border ${feat.border} hover:bg-slate-900/90 transition-all duration-300 space-y-4 group relative overflow-hidden`}
-                  >
-                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feat.accent} rounded-bl-full pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity`} />
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400 border border-slate-700">
-                        <IconComp className="w-5 h-5" />
-                      </div>
-                      <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                        {feat.badge}
-                      </span>
+        <!-- Problem & Opportunity -->
+        <section id="platform">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Risk does not happen in isolation.</h2>
+                    <p>An individual order may look legitimate when considered alone, while behavioral patterns and relationships between events can reveal essential context.</p>
+                </div>
+                <div class="problem-grid">
+                    <div class="concept-card">
+                        <span class="concept-number">01 / CONTEXT</span>
+                        <h3>Transaction Context</h3>
+                        <p>Evaluate core order attributes, amounts, delivery addresses, and customer profiles in real-time as transactions are initiated.</p>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <h3 className="text-lg font-bold text-slate-100">{feat.title}</h3>
-                      <p className="text-sm text-slate-400 leading-relaxed">{feat.description}</p>
+                    <div class="concept-card">
+                        <span class="concept-number">02 / PATTERNS</span>
+                        <h3>Behavioral Patterns</h3>
+                        <p>Incorporate broader behavioral indicators to understand shopping velocity and order consistency across sessions.</p>
                     </div>
-                  </div>
-                );
-              })}
+                    <div class="concept-card">
+                        <span class="concept-number">03 / RELATIONSHIPS</span>
+                        <h3>Related Activity</h3>
+                        <p>Connect signals across related identifiers to surface relevant risk indicators before fulfillment or shipment.</p>
+                    </div>
+                </div>
             </div>
-          </div>
         </section>
 
-        {}
-        <section id="simulator" className="py-20 px-4 lg:px-8 border-t border-slate-800/60">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-400 text-xs font-mono border border-indigo-800/60">
-                  <Terminal className="w-3 h-3" />
-                  <span>SIMULATED EVALUATION</span>
+        <!-- Platform Overview -->
+        <section id="how-it-works">
+            <div class="container">
+                <div class="section-header">
+                    <h2>From signals to actionable decisions.</h2>
+                    <p>Trust-X integrates cleanly into your checkout infrastructure through a streamlined four-step evaluation workflow.</p>
                 </div>
-                <h2 className="text-3xl font-bold text-white">Interactive Risk Simulator</h2>
-                <p className="text-sm text-slate-400 max-w-xl">
-                  Demonstration of Trust-X decision logic, thresholds (70 / 40 / 0), system decisions, and returned merchant controls.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={triggerEvaluation}
-                  disabled={isEvaluating}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-400 flex items-center gap-2 transition-all"
-                >
-                  <Activity className={`w-3.5 h-3.5 ${isEvaluating ? 'animate-spin' : ''}`} />
-                  <span>Re-Evaluate Logic</span>
-                </button>
-              </div>
+                <div class="workflow-steps">
+                    <div class="workflow-card">
+                        <span class="workflow-step-id">STEP 01</span>
+                        <h3>Ingest</h3>
+                        <p>Receive transaction context, metadata, and available signals securely via API.</p>
+                    </div>
+                    <div class="workflow-card">
+                        <span class="workflow-step-id">STEP 02</span>
+                        <h3>Analyze</h3>
+                        <p>Evaluate relevant risk factors and behavioral information against policy rules.</p>
+                    </div>
+                    <div class="workflow-card">
+                        <span class="workflow-step-id">STEP 03</span>
+                        <h3>Decide</h3>
+                        <p>Return a structured risk assessment accompanied by a clear explanation.</p>
+                    </div>
+                    <div class="workflow-card">
+                        <span class="workflow-step-id">STEP 04</span>
+                        <h3>Act</h3>
+                        <p>Help merchants select and execute appropriate checkout or verification responses.</p>
+                    </div>
+                </div>
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Controls Panel */}
-              <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
-                <h3 className="text-xs font-mono text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-                  Input Telemetry Parameters
-                </h3>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Address History & Fidelity</label>
-                  <select
-                    value={addressHistory}
-                    onChange={(e) => setAddressHistory(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
-                  >
-                    <option value="verified">Verified Residence / Multi-Purchase</option>
-                    <option value="unverified">Missing Door # / Landmark Gaps (Unverified)</option>
-                    <option value="blacklisted">Flagged Address Pattern</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Device & Network Fingerprint</label>
-                  <select
-                    value={deviceRisk}
-                    onChange={(e) => setDeviceRisk(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
-                  >
-                    <option value="normal">Clean Mobile Web (Standard User Agent)</option>
-                    <option value="proxy">Data Center Proxy / High-Risk VPN</option>
-                    <option value="emu">Automated Headless / Emulator Signature</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Checkout Session Velocity</label>
-                  <select
-                    value={velocity}
-                    onChange={(e) => setVelocity(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
-                  >
-                    <option value="normal">Normal Cadence (&gt; 45s dwell time)</option>
-                    <option value="high">Rapid Session Velocity (&lt; 3s checkout)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Requested Payment Method</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setPaymentMethod('COD')}
-                      className={`p-2.5 rounded-lg border text-xs font-mono text-center transition-all ${
-                        paymentMethod === 'COD'
-                          ? 'bg-cyan-950/80 border-cyan-500 text-cyan-300'
-                          : 'bg-slate-950 border-slate-800 text-slate-400'
-                      }`}
-                    >
-                      Cash on Delivery
-                    </button>
-                    <button
-                      onClick={() => setPaymentMethod('PREPAID')}
-                      className={`p-2.5 rounded-lg border text-xs font-mono text-center transition-all ${
-                        paymentMethod === 'PREPAID'
-                          ? 'bg-indigo-950/80 border-indigo-500 text-indigo-300'
-                          : 'bg-slate-950 border-slate-800 text-slate-400'
-                      }`}
-                    >
-                      Prepaid (UPI / Card)
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Output Console */}
-              <div className="lg:col-span-7 rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex flex-col shadow-2xl">
-                <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                    <span className="ml-2 text-xs font-mono text-slate-300 font-semibold">
-                      POST /v1/risk/evaluate
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/50">
-                      EXAMPLE REQUEST
-                    </span>
-                    <button
-                      onClick={copySnippet}
-                      className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition-colors text-xs flex items-center gap-1 font-mono"
-                    >
-                      {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedCode ? 'Copied' : 'Copy JSON'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-4 font-mono text-xs overflow-x-auto flex-1 leading-relaxed text-slate-300">
-                  <pre>{JSON.stringify(simulatorOutput, null, 2)}</pre>
-                </div>
-
-                <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 gap-2">
-                  <span>
-                    System Decision: <strong className="text-cyan-400">{simulatorOutput.decision}</strong>
-                  </span>
-                  <span>
-                    Merchant Control: <strong className="text-indigo-400">{simulatorOutput.merchant_control}</strong>
-                  </span>
-                  <span>
-                    Risk Score: <strong className="text-amber-400">{simulatorOutput.risk_score} / 100</strong>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
 
-        {}
-        <section id="pricing" className="py-20 px-4 lg:px-8 border-t border-slate-800/60 bg-slate-950/40">
-          <div className="max-w-7xl mx-auto space-y-12">
-            <div className="text-center max-w-2xl mx-auto space-y-4">
-              <h2 className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Commercial Models</h2>
-              <p className="text-3xl font-bold text-white">Planned Pricing & Value Calculations</p>
-
-              <div className="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold">
-                <button
-                  onClick={() => setPricingMode('saas')}
-                  className={`px-4 py-2 rounded-lg transition-all ${
-                    pricingMode === 'saas'
-                      ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-bold shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Planned Tiers
-                </button>
-                <button
-                  onClick={() => setPricingMode('rto_calc')}
-                  className={`px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
-                    pricingMode === 'rto_calc'
-                      ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-bold shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>RTO Savings Calculator</span>
-                </button>
-              </div>
+        <!-- Capabilities -->
+        <section id="capabilities">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Risk intelligence designed for commerce workflows.</h2>
+                    <p>Modular capabilities built to support modern merchants, marketplaces, and e-commerce platforms.</p>
+                </div>
+                <div class="capabilities-grid">
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <h3>Real-Time Risk Evaluation</h3>
+                        <p>Evaluate available transaction context and applicable signals to support immediate checkout decisions.</p>
+                    </div>
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <h3>Behavioral Intelligence</h3>
+                        <p>Use available behavioral information to add crucial context beyond the individual transaction.</p>
+                    </div>
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0115.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/></svg>
+                        </div>
+                        <h3>Shared-Device Signals</h3>
+                        <p>Utilize shared-device relationships as a risk signal when relevant data is available in your workflow.</p>
+                    </div>
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <h3>Explainable Decisions</h3>
+                        <p>Make risk factors and their contribution to an assessment completely transparent and understandable.</p>
+                    </div>
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <h3>Adaptive Checkout Controls</h3>
+                        <p>Support risk-appropriate responses, such as verification or payment restrictions, based on merchant policy.</p>
+                    </div>
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h3>API-First Integration</h3>
+                        <p>Designed for seamless embedding into existing merchant systems and checkout order workflows.</p>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            {pricingMode === 'saas' ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Starter */}
-                <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <span className="text-xs font-mono text-slate-400 uppercase">Starter Tier (Planned)</span>
-                    <div>
-                      <span className="text-4xl font-extrabold text-white">$199</span>
-                      <span className="text-xs text-slate-400"> / month</span>
-                    </div>
-                    <p className="text-xs text-slate-400">For early-stage D2C platforms requiring basic risk decisioning.</p>
-                    <ul className="space-y-2.5 text-xs text-slate-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Included Evaluation Sessions</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Core Risk Engine Decisioning</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>PostgreSQL State Persistence</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={() => setIsAccessModalOpen(true)}
-                    className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700"
-                  >
-                    Request Starter Access
-                  </button>
+        <!-- Interactive Risk Evaluation Demo -->
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>See how risk context can change a checkout decision.</h2>
+                    <p>Select different illustrative scenarios to observe how Trust-X structures risk assessments and recommended controls.</p>
                 </div>
+                <div class="demo-section-wrapper">
+                    <div class="demo-tabs">
+                        <button class="demo-tab active" onclick="switchDemoScenario('standard')">Lower-Risk Example</button>
+                        <button class="demo-tab" onclick="switchDemoScenario('elevated')">Elevated-Risk Example</button>
+                        <button class="demo-tab" onclick="switchDemoScenario('high')">Higher-Risk Example</button>
+                    </div>
+                    <div class="demo-grid">
+                        <div class="demo-parameters">
+                            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;" id="demo-title">Standard Order Profile</h3>
+                            <div class="demo-param-row">
+                                <span class="demo-param-key">customer_id</span>
+                                <span class="demo-param-val" id="d-cust">cust_8921a4</span>
+                            </div>
+                            <div class="demo-param-row">
+                                <span class="demo-param-key">order_amount</span>
+                                <span class="demo-param-val" id="d-amt">₹1,499.00</span>
+                            </div>
+                            <div class="demo-param-row">
+                                <span class="demo-param-key">return_requested</span>
+                                <span class="demo-param-val" id="d-ret">false</span>
+                            </div>
+                            <div class="demo-param-row">
+                                <span class="demo-param-key">return_reason</span>
+                                <span class="demo-param-val" id="d-rsn">null</span>
+                            </div>
+                            <div class="demo-param-row">
+                                <span class="demo-param-key">evaluation_status</span>
+                                <span class="demo-param-val" style="color: #34D399;" id="d-stat">AUTHORIZED</span>
+                            </div>
+                        </div>
+                        <div style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 1.5rem;">
+                            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.5rem; font-weight: 600;">Assessment Output & Explanation</div>
+                            <p style="font-size: 0.9375rem; color: var(--text-main); margin-bottom: 1rem;" id="demo-explanation">Transaction displays consistent profile attributes, verified postal formatting, and normal velocity metrics. No anomalous risk indicators detected.</p>
+                            <div style="font-size: 0.8125rem; color: var(--text-muted); font-family: var(--font-mono);" id="demo-control-rec">Recommended Control: Standard fulfillment without friction.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                {/* Growth */}
-                <div className="p-8 rounded-2xl bg-slate-900/90 border border-cyan-500/50 space-y-6 flex flex-col justify-between relative shadow-xl">
-                  <div className="space-y-4">
-                    <span className="text-xs font-mono text-cyan-400 uppercase">Growth Plan (Planned)</span>
-                    <div>
-                      <span className="text-4xl font-extrabold text-white">$499</span>
-                      <span className="text-xs text-slate-400"> / month</span>
-                    </div>
-                    <p className="text-xs text-slate-400">For scaling brands requiring active COD & return risk controls.</p>
-                    <ul className="space-y-2.5 text-xs text-slate-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Expanded Session Capacity</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Merchant Control Interception</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Cross-Merchant Signal Integration</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={() => setIsAccessModalOpen(true)}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs"
-                  >
-                    Request Growth Access
-                  </button>
+        <!-- Developer Integration -->
+        <section id="developers">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Built to fit your existing stack.</h2>
+                    <p>Trust-X is designed to integrate through a straightforward API, allowing merchants to evaluate transaction risk within their existing order and checkout workflows.</p>
                 </div>
+                <div class="api-grid">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Seamless REST API Endpoint</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 1.5rem;">
+                            Send transaction payloads to our evaluation endpoint and receive structured JSON risk assessments in milliseconds. Fully compatible with custom checkouts, ERPs, and order management systems.
+                        </p>
+                        <ul style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem;">
+                            <li style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                                Standard JSON request & response schemas
+                            </li>
+                            <li style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                                Transparent factor contribution breakdown
+                            </li>
+                        </ul>
+                        <a href="#contact" class="btn btn-secondary">Discuss Integration</a>
+                    </div>
+                    <div class="code-window">
+                        <div class="code-header">
+                            <span>POST /v1/risk/evaluate</span>
+                            <div class="code-actions">
+                                <span style="color: var(--text-dim);">JSON</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy code</button>
+                            </div>
+                        </div>
+                        <div class="code-body" id="api-code-snippet">
+<span class="code-keyword">curl</span> -X POST https://api.trustx.world/v1/risk/evaluate \
+  -H <span class="code-string">"Content-Type: application/json"</span> \
+  -H <span class="code-string">"Authorization: Bearer tx_live_..."</span> \
+  -d <span class="code-string">'{
+    "customer_id": "cust_8921a4",
+    "order_id": "ord_781293",
+    "order_amount": 4250.00,
+    "return_requested": true,
+    "return_reason": "address_unreachable"
+  }'</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                {/* Scale */}
-                <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <span className="text-xs font-mono text-slate-400 uppercase">Scale Plan (Planned)</span>
-                    <div>
-                      <span className="text-4xl font-extrabold text-white">$1,199</span>
-                      <span className="text-xs text-slate-400"> / month</span>
-                    </div>
-                    <p className="text-xs text-slate-400">For high-volume platforms with custom threshold requirements.</p>
-                    <ul className="space-y-2.5 text-xs text-slate-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Custom Session Volumes</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Isolated Deployment Architecture</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                        <span>Dedicated Integration Engineering</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={() => setIsAccessModalOpen(true)}
-                    className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700"
-                  >
-                    Contact Scale Team
-                  </button>
+        <!-- Use Cases -->
+        <section id="use-cases">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Built for complex commerce decisions.</h2>
+                    <p>Designed to support risk evaluation across varied operating models and commerce platforms.</p>
                 </div>
-              </div>
-            ) : (
-              <div className="p-8 rounded-2xl bg-slate-900/90 border border-slate-800 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 shadow-2xl">
-                <div className="md:col-span-6 space-y-6">
-                  <div>
-                    <h3 className="text-sm font-mono text-cyan-400 uppercase">Merchant Baseline Parameters</h3>
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Illustrative estimate — actual savings depend on merchant-specific baseline data.
+                <div class="use-cases-grid">
+                    <div class="use-case-card">
+                        <h3>Direct-to-Consumer Brands</h3>
+                        <p>Add risk context to order and return workflows to better manage fulfillment decisions and operational friction.</p>
+                    </div>
+                    <div class="use-case-card">
+                        <h3>Marketplaces</h3>
+                        <p>Evaluate available signals across complex buyer, seller, and order interactions to maintain marketplace trust.</p>
+                    </div>
+                    <div class="use-case-card">
+                        <h3>Digital Commerce Platforms</h3>
+                        <p>Integrate robust risk intelligence directly into existing merchant tools and checkout extension frameworks.</p>
+                    </div>
+                    <div class="use-case-card">
+                        <h3>High-Volume Merchants</h3>
+                        <p>Support consistent, automated risk evaluation across a large volume of daily checkout and order decisions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration and Decision Flow -->
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>Clear architecture and control.</h2>
+                    <p>How Trust-X fits into your merchant technology stack.</p>
+                </div>
+                <div class="arch-flow-box">
+                    <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Decision Architecture</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">You maintain ultimate policy control</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9375rem; max-width: 600px; margin: 0 auto;">
+                        Trust-X provides rigorous risk assessments, while your merchant systems retain full responsibility for executing the corresponding checkout action or policy.
                     </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-slate-300">
-                      <span>Monthly Total Orders</span>
-                      <strong className="font-mono text-cyan-400">{monthlyOrders.toLocaleString()}</strong>
+                    <div class="arch-diagram">
+                        <div class="arch-node">Merchant Checkout / Order System</div>
+                        <div class="arch-connector"></div>
+                        <div class="arch-node highlight">Trust-X Risk Evaluation API</div>
+                        <div class="arch-connector"></div>
+                        <div class="arch-node">Risk Assessment & Merchant Policy</div>
                     </div>
-                    <input
-                      type="range"
-                      min="2000"
-                      max="100000"
-                      step="1000"
-                      value={monthlyOrders}
-                      onChange={(e) => setMonthlyOrders(Number(e.target.value))}
-                      className="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-slate-300">
-                      <span>Current Baseline COD RTO Rate</span>
-                      <strong className="font-mono text-indigo-400">{currentRtoRate}%</strong>
-                    </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="40"
-                      step="1"
-                      value={currentRtoRate}
-                      onChange={(e) => setCurrentRtoRate(Number(e.target.value))}
-                      className="w-full accent-indigo-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-slate-300">
-                      <span>Average Freight Cost (Forward + Reverse)</span>
-                      <strong className="font-mono text-emerald-400">₹{avgFreightCost}</strong>
-                    </div>
-                    <input
-                      type="range"
-                      min="80"
-                      max="300"
-                      step="10"
-                      value={avgFreightCost}
-                      onChange={(e) => setAvgFreightCost(Number(e.target.value))}
-                      className="w-full accent-emerald-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
                 </div>
-
-                <div className="md:col-span-6 p-6 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <p className="text-xs font-mono text-slate-400 uppercase">Projected Value Model</p>
-                    <div>
-                      <p className="text-xs text-slate-400">Modeled RTO Reduction Projection</p>
-                      <p className="text-2xl font-bold font-mono text-emerald-400">
-                        {currentRtoRate}% → {rtoCalculations.reducedRate}%
-                      </p>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-800/80">
-                      <p className="text-xs text-slate-400">Estimated Monthly Freight Loss Prevention</p>
-                      <p className="text-3xl font-extrabold font-mono text-white">
-                        ₹{rtoCalculations.monthlySavings.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-indigo-950/40 border border-indigo-800/40">
-                    <p className="text-[11px] text-indigo-300 font-mono">
-                      Illustrative ROI estimate based on the assumptions above.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
         </section>
 
-        {}
-        <section className="py-20 px-4 lg:px-8 border-t border-slate-800 text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-3xl font-extrabold text-white">
-              Connect Your E-Commerce Checkout
-            </h2>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Connect your backend to the Trust-X REST API and evaluate transactions before payment or fulfilment decisions.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-2">
-              <button
-                onClick={() => setIsAccessModalOpen(true)}
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/25 transition-all"
-              >
-                Request API Access
-              </button>
+        <!-- Security and Responsible Decision-Making -->
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>Clear decisions. Thoughtful controls.</h2>
+                    <p>Our approach to responsible risk intelligence infrastructure.</p>
+                </div>
+                <div class="security-grid">
+                    <div class="security-item">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Signal Transparency
+                        </h3>
+                        <p>Understanding the precise signals and factors used in an assessment ensures clarity for operations teams and merchants alike.</p>
+                    </div>
+                    <div class="security-item">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            Policy Responsibility
+                        </h3>
+                        <p>Maintaining clear boundaries between risk evaluation and execution keeps merchants firmly in control of their customer experience.</p>
+                    </div>
+                    <div class="security-item">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            Seamless Integration
+                        </h3>
+                        <p>Designed to integrate into existing order management systems without requiring complex architectural overhauls.</p>
+                    </div>
+                    <div class="security-item">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            Decision Support
+                        </h3>
+                        <p>Treating risk scores and signals as actionable decision support rather than unquestionable black-box determinations.</p>
+                    </div>
+                </div>
             </div>
-          </div>
         </section>
-      </main>
 
-      {}
-      <footer className="py-8 px-4 lg:px-8 border-t border-slate-800/80 text-xs text-slate-500 text-center font-mono flex flex-col items-center justify-center gap-3">
-        <div className="flex items-center gap-2">
-          <TrustXLogoMark className="w-6 h-5" />
-          <span className="font-bold text-sm tracking-tight text-slate-300 font-sans">
-            Trust<span className="text-purple-400">-X</span>
-          </span>
-        </div>
-        <p>© 2026 Trust-X — Transaction Risk Intelligence Infrastructure.</p>
-      </footer>
-
-      {}
-      {/* Request Access Modal */}
-      {isAccessModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full relative space-y-4 shadow-2xl">
-            <button
-              onClick={() => setIsAccessModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white">Request API Access</h3>
-              <p className="text-xs text-slate-400">
-                Trust-X is onboarding merchants to the M10.1 API evaluation pipeline.
-              </p>
+        <!-- Company Section -->
+        <section>
+            <div class="container">
+                <div class="company-banner">
+                    <h2>Building better risk infrastructure for commerce.</h2>
+                    <p>Trust-X is focused on helping commerce businesses understand risk, evaluate suspicious activity, and make more informed checkout decisions.</p>
+                </div>
             </div>
+        </section>
 
-            {requestSubmitted ? (
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 text-center space-y-2">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                <p className="text-sm font-semibold text-emerald-200">Request Registered</p>
-                <p className="text-xs text-slate-300">
-                  Our integration engineering team will follow up with your staging credentials.
-                </p>
-              </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setRequestSubmitted(true);
-                }}
-                className="space-y-3 text-xs"
-              >
-                <div>
-                  <label className="block text-slate-300 mb-1">Work Email</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="cto@merchant.com"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
-                  />
+        <!-- Final Call to Action -->
+        <section id="contact">
+            <div class="container" style="text-align: center; max-width: 700px;">
+                <h2 style="font-size: clamp(2rem, 3vw, 2.75rem); font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.025em;">Bring better risk intelligence into your checkout.</h2>
+                <p style="color: var(--text-muted); font-size: 1.0625rem; margin-bottom: 2rem;">Explore how Trust-X can fit into your commerce risk and order workflows.</p>
+                <div style="display: flex; justify-content: center; gap: 1rem;">
+                    <a href="mailto:contact@trustx.world" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.9375rem;">Talk to Us</a>
+                    <a href="#platform" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 0.9375rem;">Explore the Platform</a>
                 </div>
-                <div>
-                  <label className="block text-slate-300 mb-1">E-Commerce Platform</label>
-                  <input
-                    type="text"
-                    placeholder="Custom / Shopify / WooCommerce"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20"
-                >
-                  Submit Access Request
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Docs Drawer */}
-      {isDocsDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-xs">
-          <div className="bg-slate-900 border-l border-slate-800 w-full max-w-xl h-full p-6 flex flex-col justify-between overflow-y-auto space-y-6 shadow-2xl">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-cyan-400" />
-                  <h3 className="text-base font-bold text-white">M10.1 API Contract Reference</h3>
-                </div>
-                <button onClick={() => setIsDocsDrawerOpen(false)} className="text-slate-400 hover:text-slate-200">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-4 text-xs font-mono text-slate-300">
-                <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                  <p className="text-cyan-400 font-bold">POST /v1/risk/evaluate</p>
-                  <p className="text-[11px] text-slate-400">Evaluates transaction telemetry and returns risk decision.</p>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-slate-400 uppercase tracking-wider text-[10px]">Decision Codes & Thresholds</p>
-                  <ul className="space-y-1.5 list-disc list-inside text-[11px]">
-                    <li><strong className="text-red-400">INSPECT (&ge; 70)</strong>: High risk score</li>
-                    <li><strong className="text-amber-400">REVIEW (50 - 69)</strong>: Elevated review required</li>
-                    <li><strong className="text-indigo-400">VERIFY (40 - 49)</strong>: Secondary verification requested</li>
-                    <li><strong className="text-emerald-400">APPROVE (&lt; 40)</strong>: Standard approval</li>
-                  </ul>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-slate-400 uppercase tracking-wider text-[10px]">Merchant Action Controls</p>
-                  <p className="text-[11px] text-slate-400">
-                    `APPROVE` | `ADDITIONAL_VERIFICATION` | `MANUAL_REVIEW` | `RETURN_INSPECTION` | `PREPAID_REQUIRED`
-                  </p>
-                </div>
-              </div>
             </div>
+        </section>
+    </main>
 
-            <div className="pt-4 border-t border-slate-800">
-              <button
-                onClick={() => {
-                  setIsDocsDrawerOpen(false);
-                  setIsAccessModalOpen(true);
-                }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-bold text-xs"
-              >
-                Request Staging Access
-              </button>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="brand">
+                        <div class="brand-icon" style="width: 1.5rem; height: 1.5rem; font-size: 0.8125rem;">X</div>
+                        <span>Trust-X</span>
+                    </a>
+                    <p>Real-time commerce risk intelligence for modern checkout and order workflows.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#platform">Overview</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#capabilities">Capabilities</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Developers</h4>
+                    <ul>
+                        <li><a href="#developers">API Integration</a></li>
+                        <li><a href="#developers">Documentation</a></li>
+                        <li><a href="#developers">Reference</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#use-cases">Use Cases</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
             </div>
-          </div>
+            <div class="footer-bottom">
+                <div>&copy; <span id="current-year">2026</span> Trust-X Inc. All rights reserved.</div>
+                <div style="font-family: var(--font-mono);">trustx.world</div>
+            </div>
         </div>
-      )}
-    </div>
-  );
-}
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        // Dynamic Copyright Year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Interactive Risk Evaluation Demo Switcher
+        const demoData = {
+            standard: {
+                cust: "cust_8921a4",
+                amt: "₹1,499.00",
+                ret: "false",
+                rsn: "null",
+                stat: "AUTHORIZED",
+                statColor: "#34D399",
+                riskText: "Low Risk",
+                riskColor: "#34D399",
+                sig1: "Verified profile",
+                sig2: "Consistent velocity",
+                sig3: "Standard session",
+                title: "Standard Order Profile",
+                explanation: "Transaction displays consistent profile attributes, verified postal formatting, and normal velocity metrics. No anomalous risk indicators detected.",
+                control: "Recommended Control: Standard fulfillment without friction."
+            },
+            elevated: {
+                cust: "cust_4412b9",
+                amt: "₹8,999.00",
+                ret: "true",
+                rsn: "address_unreachable",
+                stat: "REVIEW_REQUIRED",
+                statColor: "#FBBF24",
+                riskText: "Elevated Risk",
+                riskColor: "#FBBF24",
+                sig1: "Unstructured instructions",
+                sig2: "Recent return history",
+                sig3: "New device session",
+                title: "Elevated-Risk Order Profile",
+                explanation: "Transaction exhibits unstructured delivery annotations combined with a prior return request associated with the customer profile.",
+                control: "Recommended Control: Request secondary verification or OTP confirmation prior to dispatch."
+            },
+            high: {
+                cust: "cust_9921x7",
+                amt: "₹12,499.00",
+                ret: "true",
+                rsn: "multiple_returns",
+                stat: "RESTRICT_COD",
+                statColor: "#F87171",
+                riskText: "Higher Risk",
+                riskColor: "#F87171",
+                sig1: "Identifier anomaly",
+                sig2: "High return frequency",
+                sig3: "Proxy network signal",
+                title: "Higher-Risk Order Profile",
+                explanation: "Multiple risk factors intersect including high return frequency across related identifiers and elevated delivery exception probability.",
+                control: "Recommended Control: Restrict Cash-on-Delivery option; require prepaid authorization."
+            }
+        };
+
+        function switchDemoScenario(scenarioKey) {
+            // Update Tab Active States
+            const tabs = document.querySelectorAll('.demo-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const data = demoData[scenarioKey];
+
+            // Update Demo Box Parameters
+            document.getElementById('demo-title').textContent = data.title;
+            document.getElementById('d-cust').textContent = data.cust;
+            document.getElementById('d-amt').textContent = data.amt;
+            document.getElementById('d-ret').textContent = data.ret;
+            document.getElementById('d-rsn').textContent = data.rsn;
+            
+            const statEl = document.getElementById('d-stat');
+            statEl.textContent = data.stat;
+            statEl.style.color = data.statColor;
+
+            document.getElementById('demo-explanation').textContent = data.explanation;
+            document.getElementById('demo-control-rec').textContent = data.control;
+
+            // Update Hero Dashboard Widget for Synchronized Polish
+            document.getElementById('dash-amount').textContent = data.amt;
+            
+            const dashRisk = document.getElementById('dash-risk');
+            dashRisk.textContent = data.riskText;
+            dashRisk.style.color = data.riskColor;
+
+            document.getElementById('dash-sig-1').textContent = data.sig1;
+            document.getElementById('dash-sig-2').textContent = data.sig2;
+            document.getElementById('dash-sig-3').textContent = data.sig3;
+            document.getElementById('dash-control').textContent = data.control;
+        }
+
+        // Copy Code Functionality
+        function copyCode(btn) {
+            const codeText = document.getElementById('api-code-snippet').innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = "Copied!";
+                btn.style.color = "#34D399";
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.color = "";
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
