@@ -27,11 +27,11 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/" 
+          app_location: "." 
           api_location: "" 
-          output_location: "/" 
+          output_location: "" 
+          skip_app_build: true
           ###### End of Configurations ######
-
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
