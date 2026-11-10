@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #FFFFFF;
+    color: #0F172A;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* KubeArmor-inspired crisp light technical grid & accent lighting */
+.tech-grid-pattern {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+}
+
+.tech-radial-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.06) 0%, rgba(59, 130, 246, 0.02) 40%, transparent 70%);
+}
+
+.tech-radial-glow-subtle {
+  background: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.04) 0%, transparent 60%);
+}
+
+/* Clean minimal scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

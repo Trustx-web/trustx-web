@@ -1,0 +1,6 @@
+{
+  "name": "Trust-X | Global Commerce Risk Intelligence Platform",
+  "description": "Founder-level operating blueprint and enterprise platform for transaction, return abuse, COD confirmation, and shared-device risk intelligence with privacy-preserving network effects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
