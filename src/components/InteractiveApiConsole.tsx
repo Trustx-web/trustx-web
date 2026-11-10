@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Terminal, Play, Copy, Check, Code2, RefreshCw, Lock, Zap } from 'lucide-react';
+import { Terminal, Play, Copy, Check, Code2, RefreshCw, Lock, Zap, Sparkles } from 'lucide-react';
 
 export const InteractiveApiConsole: React.FC = () => {
   const [activeLang, setActiveLang] = useState<'curl' | 'node' | 'python' | 'go'>('curl');
@@ -163,8 +163,12 @@ func main() {
   };
 
   return (
-    <section id="api-contract" className="py-12 md:py-18 bg-slate-50/70 border-b border-slate-200 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="api-contract" className="py-12 md:py-18 bg-slate-50/50 border-b border-slate-200/80 relative overflow-hidden">
+      {/* Ambient Azure blooms */}
+      <div className="absolute top-1/4 right-10 w-96 h-96 azure-blob-1 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-10 w-96 h-96 azure-blob-2 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="max-w-3xl">
@@ -179,19 +183,22 @@ func main() {
           </p>
         </div>
 
-        {/* Interactive Playground Grid */}
-        <div className="mt-10 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-lg">
+        {/* Interactive Playground Grid with Liquid Glass Portal */}
+        <div className="mt-10 rounded-2xl liquid-glass-portal border border-white/90 overflow-hidden shadow-2xl relative">
           
+          {/* Top highlight line */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none" />
+
           {/* Top Bar with Language Tabs & Execution Trigger */}
-          <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+          <div className="px-6 py-4 bg-white/70 backdrop-blur-xl border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 backdrop-blur-md rounded-xl border border-slate-200/80">
               {(['curl', 'node', 'python', 'go'] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setActiveLang(lang)}
-                  className={`px-3 py-1 text-xs font-mono font-medium rounded transition-colors uppercase ${
+                  className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all uppercase ${
                     activeLang === lang
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200 font-semibold shadow-xs'
+                      ? 'bg-white text-blue-700 border border-slate-200/80 font-bold shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -202,7 +209,7 @@ func main() {
 
             <div className="flex items-center gap-3">
               {executionTime && (
-                <span className="text-[11px] font-mono text-blue-700 flex items-center gap-1 font-medium">
+                <span className="text-[11px] font-mono text-blue-700 flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full liquid-glass border border-blue-200/60 shadow-2xs">
                   <Zap className="w-3 h-3 text-blue-600" />
                   <span>{executionTime}ms latency</span>
                 </span>
@@ -211,33 +218,33 @@ func main() {
               <button
                 onClick={handleExecute}
                 disabled={isLoading}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-all active:scale-[0.98] shadow-xs"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all active:scale-[0.98] shadow-md shadow-blue-500/25"
               >
-                <Play className="w-3 h-3 text-white fill-white" />
-                <span>{isLoading ? 'Sending...' : 'Test Request'}</span>
+                <Play className="w-3.5 h-3.5 text-white fill-white" />
+                <span>{isLoading ? 'Executing...' : 'Run Simulation'}</span>
               </button>
             </div>
           </div>
 
           {/* Interactive Request & Response Panels */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200/80">
             
             {/* Left 6 Columns: Request Parameters & Code */}
-            <div className="lg:col-span-6 p-6 space-y-4">
+            <div className="lg:col-span-6 p-6 sm:p-7 space-y-5">
               
               {/* Parameter Controls */}
-              <div className="bg-slate-50/70 border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="liquid-glass rounded-xl p-5 border border-white/90 space-y-3.5 shadow-2xs">
                 <div className="text-xs font-mono text-blue-600 uppercase tracking-wider font-semibold">
                   Test Request Parameters
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Event Type</label>
+                    <label className="text-[11px] text-slate-500 font-mono block mb-1">Event Type</label>
                     <select
                       value={selectedEventType}
                       onChange={(e) => setSelectedEventType(e.target.value as any)}
-                      className="w-full bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-mono shadow-xs"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-mono shadow-xs"
                     >
                       <option value="cod_confirmation">COD Confirm</option>
                       <option value="checkout">Checkout</option>
@@ -246,11 +253,11 @@ func main() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Payment Method</label>
+                    <label className="text-[11px] text-slate-500 font-mono block mb-1">Payment Method</label>
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value as any)}
-                      className="w-full bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-mono shadow-xs"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-mono shadow-xs"
                     >
                       <option value="COD">COD</option>
                       <option value="CREDIT_CARD">Credit Card</option>
@@ -259,7 +266,7 @@ func main() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Amount ({orderAmount})</label>
+                    <label className="text-[11px] text-slate-500 font-mono block mb-1">Amount (₹{orderAmount})</label>
                     <input
                       type="range"
                       min="500"
@@ -274,39 +281,39 @@ func main() {
               </div>
 
               {/* Code Snippet Box */}
-              <div className="relative rounded-lg bg-[#0F172A] border border-slate-800 p-4 font-mono text-xs text-slate-200 overflow-x-auto shadow-sm">
+              <div className="relative rounded-xl bg-[#0F172A] border border-slate-800 p-5 font-mono text-xs text-slate-200 overflow-x-auto shadow-lg">
                 <button
                   onClick={handleCopy}
-                  className="absolute top-3 right-3 p-1.5 text-slate-400 hover:text-white bg-slate-800 border border-slate-700 rounded transition-colors"
+                  className="absolute top-3.5 right-3.5 p-1.5 text-slate-400 hover:text-white bg-slate-800/80 border border-slate-700 rounded-lg transition-colors"
                   title="Copy Code"
                 >
                   {copiedCode ? <Check className="w-3.5 h-3.5 text-blue-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
-                <pre className="pr-8">{getCodeSnippet()}</pre>
+                <pre className="pr-8 leading-relaxed">{getCodeSnippet()}</pre>
               </div>
 
             </div>
 
             {/* Right 6 Columns: JSON Response */}
-            <div className="lg:col-span-6 p-6 bg-slate-50/30 flex flex-col justify-between">
+            <div className="lg:col-span-6 p-6 sm:p-7 bg-white/40 backdrop-blur-xl flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-3.5">
                   <span className="text-xs font-mono text-blue-600 uppercase tracking-wider flex items-center gap-1.5 font-semibold">
                     <Code2 className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Real-Time Decision Response Contract</span>
+                    <span>Real-Time Decision Contract</span>
                   </span>
-                  <span className="text-xs font-mono text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded font-medium">
+                  <span className="text-xs font-mono text-blue-700 bg-blue-50/90 border border-blue-200 px-2.5 py-0.5 rounded-full font-semibold shadow-2xs">
                     HTTP 200 OK
                   </span>
                 </div>
 
-                <div className="rounded-lg bg-[#0F172A] border border-slate-800 p-4 font-mono text-xs text-slate-200 overflow-x-auto max-h-[360px] shadow-sm">
+                <div className="rounded-xl bg-[#0F172A] border border-slate-800 p-5 font-mono text-xs text-slate-200 overflow-x-auto max-h-[360px] shadow-lg leading-relaxed">
                   <pre>{JSON.stringify(currentResult, null, 2)}</pre>
                 </div>
               </div>
 
               {/* Outcome summary bar */}
-              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+              <div className="mt-5 pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-600">
                   Recommended Action: <strong className="text-blue-700 font-bold uppercase">{currentResult.recommended_action}</strong>
                 </span>

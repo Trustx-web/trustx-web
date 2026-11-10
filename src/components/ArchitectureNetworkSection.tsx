@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Key, EyeOff, Scale, Server, ArrowRight, Lock, Check } from 'lucide-react';
+import { Shield, Key, EyeOff, Scale, Server, ArrowRight, Lock, Check, Cpu } from 'lucide-react';
 import { FOUNDER_PRINCIPLES } from '../data/mockData';
 
 export const ArchitectureNetworkSection: React.FC = () => {
@@ -33,8 +33,12 @@ export const ArchitectureNetworkSection: React.FC = () => {
   ];
 
   return (
-    <section id="network-architecture" className="py-12 md:py-18 bg-slate-50/70 border-y border-slate-200 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="network-architecture" className="py-12 md:py-18 bg-slate-50/50 border-y border-slate-200/80 relative overflow-hidden">
+      {/* Ambient background bloom */}
+      <div className="absolute top-1/4 right-5 w-96 h-96 azure-blob-1 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-5 w-96 h-96 azure-blob-2 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="max-w-3xl">
@@ -57,10 +61,10 @@ export const ArchitectureNetworkSection: React.FC = () => {
               <div
                 key={i}
                 onClick={() => setActiveStage(i + 1)}
-                className={`cursor-pointer p-5 rounded-xl border transition-all text-left flex flex-col justify-between ${
+                className={`cursor-pointer p-5 rounded-2xl border transition-all text-left flex flex-col justify-between ${
                   isCurrent
-                    ? 'bg-blue-50/60 border-blue-400 shadow-sm'
-                    : 'bg-white border-slate-200 hover:border-slate-300'
+                    ? 'liquid-glass-accent border-blue-400/90 shadow-md ring-1 ring-blue-500/20'
+                    : 'liquid-glass-card border-white/90 hover:border-blue-200'
                 }`}
               >
                 <div>
@@ -69,10 +73,10 @@ export const ArchitectureNetworkSection: React.FC = () => {
                       STAGE {st.step}
                     </span>
                     {isCurrent && (
-                      <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse shadow-sm shadow-blue-500/50" />
                     )}
                   </div>
-                  <h3 className="text-sm font-semibold text-slate-900 mt-2 leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 mt-2 leading-snug">
                     {st.title}
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
@@ -80,7 +84,7 @@ export const ArchitectureNetworkSection: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-600 leading-normal">
+                <div className="mt-4 pt-3 border-t border-slate-200/70 text-[11px] text-slate-600 leading-normal">
                   <strong className="text-blue-600 font-mono">Control:</strong> {st.detail}
                 </div>
               </div>
@@ -89,11 +93,15 @@ export const ArchitectureNetworkSection: React.FC = () => {
         </div>
 
         {/* Visual Architecture Box: Architectural Graphic & Data Flow */}
-        <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 lg:p-8 shadow-sm">
+        <div className="mt-8 rounded-2xl liquid-glass-portal border border-white/90 p-6 lg:p-8 shadow-xl relative overflow-hidden">
+          
+          {/* Subtle top edge liquid refraction highlight */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none" />
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Visual Graphic Representation */}
-            <div className="lg:col-span-6 relative rounded-lg overflow-hidden border border-slate-200 shadow-md group">
+            <div className="lg:col-span-6 relative rounded-xl overflow-hidden border border-slate-200 shadow-md group">
               <img
                 src="/src/assets/images/architecture_kernel_ebpf_1794329726448.jpg"
                 alt="TrustX Cryptographic Identity Vault & Network Matching Pipeline"
@@ -103,11 +111,11 @@ export const ArchitectureNetworkSection: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-80" />
               
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[11px] font-mono text-white/95">
-                <span className="bg-black/80 backdrop-blur-md px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
+                <span className="bg-black/80 backdrop-blur-md px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5 shadow-sm">
                   <Lock className="w-3 h-3 text-blue-400" />
                   <span>Cloud HSM Key Vault: Active</span>
                 </span>
-                <span className="bg-blue-950/80 backdrop-blur-md text-blue-200 px-2.5 py-1 rounded border border-blue-400/40">
+                <span className="bg-blue-950/80 backdrop-blur-md text-blue-200 px-2.5 py-1 rounded border border-blue-400/40 shadow-sm">
                   Zero Cross-Tenant Leakage
                 </span>
               </div>
@@ -127,22 +135,22 @@ export const ArchitectureNetworkSection: React.FC = () => {
                 </p>
               </div>
 
-              <div className="space-y-2.5">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3.5 rounded-xl liquid-glass border border-white/90 text-xs text-slate-700 shadow-2xs">
                   <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-slate-900">Tenant-Scoped Isolation:</strong> Database tables, cache partitions, and API keys are strictly partitioned per merchant. No accidental BOLA or IDOR leakage.
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                <div className="flex items-start gap-3 p-3.5 rounded-xl liquid-glass border border-white/90 text-xs text-slate-700 shadow-2xs">
                   <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-slate-900">Relationship-Gated Queries:</strong> A merchant may only receive risk signals for customers who actively initiated a transaction on their storefront.
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                <div className="flex items-start gap-3 p-3.5 rounded-xl liquid-glass border border-white/90 text-xs text-slate-700 shadow-2xs">
                   <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-slate-900">Contestable Decisions:</strong> Every evaluation includes correlation metadata and dispute routing to support consumer grievance and correction rights.
@@ -166,10 +174,12 @@ export const ArchitectureNetworkSection: React.FC = () => {
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {FOUNDER_PRINCIPLES.map((fp, i) => (
-              <div key={i} className="p-4 rounded-lg bg-white border border-slate-200 shadow-xs">
-                <span className="font-mono text-xs text-blue-600 font-bold">{fp.number}.</span>
-                <h4 className="text-sm font-semibold text-slate-900 mt-1">{fp.title}</h4>
-                <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{fp.description}</p>
+              <div key={i} className="p-5 rounded-2xl liquid-glass-card border border-white/90 shadow-sm flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs text-blue-600 font-bold">{fp.number}.</span>
+                  <h4 className="text-sm font-bold text-slate-900 mt-1">{fp.title}</h4>
+                  <p className="mt-2 text-xs text-slate-600 leading-relaxed">{fp.description}</p>
+                </div>
               </div>
             ))}
           </div>

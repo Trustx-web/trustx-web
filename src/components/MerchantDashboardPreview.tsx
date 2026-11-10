@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Filter, ArrowUpRight, Check, AlertTriangle, Shield, Settings2, Users } from 'lucide-react';
+import { LayoutDashboard, Filter, ArrowUpRight, Check, AlertTriangle, Shield, Settings2, Users, Activity, Globe, Server } from 'lucide-react';
 
 export const MerchantDashboardPreview: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<'aurastyle' | 'voltdirect'>('aurastyle');
@@ -13,6 +13,8 @@ export const MerchantDashboardPreview: React.FC = () => {
       activeUseCases: 'COD Delivery & Return Abuse',
       evaluatedToday: '14,892',
       preventedRtoLoss: '₹4,12,000',
+      p99Latency: '24ms',
+      clusterStatus: 'Healthy (100% SLA)',
       events: [
         { id: 'evt-901', time: '16:54:10', type: 'COD Dispatch', customer: 'tok_hmac_994b', amount: '₹3,499', score: 68, band: 'elevated', action: 'require_prepayment_cod', reasons: ['COD_REFUSAL_CLUSTER', 'DEVICE_MULTI_FAIL'] },
         { id: 'evt-902', time: '16:53:45', type: 'Return Request', customer: 'tok_hmac_41c9', amount: '₹1,850', score: 74, band: 'elevated', action: 'manual_review', reasons: ['RETURN_PATTERN_SIGNAL', 'WARDROBING_ANOMALY'] },
@@ -28,6 +30,8 @@ export const MerchantDashboardPreview: React.FC = () => {
       activeUseCases: 'Payment Fraud & Shared Device',
       evaluatedToday: '38,204',
       preventedRtoLoss: '$38,400',
+      p99Latency: '19ms',
+      clusterStatus: 'Healthy (100% SLA)',
       events: [
         { id: 'evt-801', time: '16:54:02', type: 'Checkout 3DS', customer: 'tok_hmac_ff01', amount: '$2,490', score: 91, band: 'critical', action: 'request_verification', reasons: ['DEVICE_LINK_SIGNAL', 'VELOCITY_ANOMALY'] },
         { id: 'evt-802', time: '16:53:20', type: 'Account Create', customer: 'tok_hmac_bb92', amount: '$0', score: 84, band: 'critical', action: 'decline', reasons: ['MULTI_IDENTITY_COLLISION'] },
@@ -44,8 +48,12 @@ export const MerchantDashboardPreview: React.FC = () => {
     : current.events.filter(e => filterAction === 'flagged' ? e.band !== 'low' : e.band === 'low');
 
   return (
-    <section className="py-12 md:py-18 relative bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 md:py-18 relative bg-white overflow-hidden">
+      {/* Ambient background bloom */}
+      <div className="absolute top-1/3 left-10 w-96 h-96 azure-blob-2 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 azure-blob-1 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -61,14 +69,14 @@ export const MerchantDashboardPreview: React.FC = () => {
             </p>
           </div>
 
-          {/* Tenant Switcher */}
-          <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-lg shrink-0 shadow-xs">
+          {/* Tenant Switcher with Liquid Glass */}
+          <div className="flex items-center gap-1.5 p-1.5 liquid-glass rounded-xl shrink-0 shadow-xs border border-white/90">
             <span className="text-xs text-slate-500 px-2 font-mono">Workspace:</span>
             <button
               onClick={() => setSelectedTenant('aurastyle')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs rounded-lg transition-all ${
                 selectedTenant === 'aurastyle'
-                  ? 'bg-white text-blue-700 border border-slate-200 shadow-xs font-semibold'
+                  ? 'bg-white text-blue-700 border border-slate-200/80 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -76,9 +84,9 @@ export const MerchantDashboardPreview: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedTenant('voltdirect')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs rounded-lg transition-all ${
                 selectedTenant === 'voltdirect'
-                  ? 'bg-white text-blue-700 border border-slate-200 shadow-xs font-semibold'
+                  ? 'bg-white text-blue-700 border border-slate-200/80 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -87,13 +95,16 @@ export const MerchantDashboardPreview: React.FC = () => {
           </div>
         </div>
 
-        {/* Mock Dashboard Window */}
-        <div className="mt-10 rounded-xl border border-slate-200 bg-white shadow-xl overflow-hidden">
+        {/* Mock Dashboard Window with Liquid Glass Portal */}
+        <div className="mt-10 rounded-2xl liquid-glass-portal border border-white/90 shadow-2xl overflow-hidden relative">
           
+          {/* Top highlight line */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none" />
+
           {/* Dashboard Header Bar */}
-          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center">
+          <div className="px-6 py-4 bg-white/70 backdrop-blur-xl border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-9 h-9 rounded-xl liquid-glass flex items-center justify-center border border-white/90 shadow-2xs">
                 <LayoutDashboard className="w-4 h-4 text-blue-600" />
               </div>
               <div>
@@ -101,21 +112,27 @@ export const MerchantDashboardPreview: React.FC = () => {
                   <span>{current.name}</span>
                   <span className="text-slate-400 font-mono text-[10px]">({current.tenantId})</span>
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono">
-                  Region: {current.region} · Policy: Strict Gated
+                <div className="text-[11px] text-slate-500 font-mono flex items-center gap-2 mt-0.5">
+                  <span>Region: <strong className="text-slate-700 font-medium">{current.region}</strong></span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-blue-700 font-medium">Policy: Strict Gated</span>
                 </div>
               </div>
             </div>
 
             {/* Quick KPI stats in header */}
             <div className="flex items-center gap-6 text-xs font-mono">
-              <div>
-                <span className="text-slate-400 block">Evaluated Today</span>
+              <div className="px-3 py-1.5 rounded-lg liquid-glass border border-white/80 shadow-2xs">
+                <span className="text-slate-400 block text-[10px]">Evaluated Today</span>
                 <span className="text-slate-900 font-bold">{current.evaluatedToday}</span>
               </div>
-              <div>
-                <span className="text-slate-400 block">Prevented Loss</span>
+              <div className="px-3 py-1.5 rounded-lg liquid-glass border border-white/80 shadow-2xs">
+                <span className="text-slate-400 block text-[10px]">Prevented Loss</span>
                 <span className="text-blue-700 font-bold">{current.preventedRtoLoss}</span>
+              </div>
+              <div className="hidden sm:block px-3 py-1.5 rounded-lg liquid-glass border border-white/80 shadow-2xs">
+                <span className="text-slate-400 block text-[10px]">p99 Latency</span>
+                <span className="text-slate-900 font-bold">{current.p99Latency}</span>
               </div>
             </div>
           </div>
@@ -125,7 +142,7 @@ export const MerchantDashboardPreview: React.FC = () => {
             
             {/* Filter toolbar */}
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+              <div className="flex items-center gap-2 text-xs font-mono text-slate-700 font-semibold">
                 <Filter className="w-3.5 h-3.5 text-blue-600" />
                 <span>Real-Time Ingest Stream</span>
               </div>
@@ -133,24 +150,24 @@ export const MerchantDashboardPreview: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setFilterAction('all')}
-                  className={`px-2.5 py-1 text-xs rounded transition-colors ${
-                    filterAction === 'all' ? 'bg-slate-900 text-white font-medium' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors font-mono ${
+                    filterAction === 'all' ? 'bg-slate-900 text-white font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   All Events
                 </button>
                 <button
                   onClick={() => setFilterAction('flagged')}
-                  className={`px-2.5 py-1 text-xs rounded transition-colors ${
-                    filterAction === 'flagged' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors font-mono ${
+                    filterAction === 'flagged' ? 'bg-amber-50 text-amber-800 border border-amber-200 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Flagged (Elevated/Critical)
+                  Flagged
                 </button>
                 <button
                   onClick={() => setFilterAction('approved')}
-                  className={`px-2.5 py-1 text-xs rounded transition-colors ${
-                    filterAction === 'approved' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-3 py-1 text-xs rounded-lg transition-colors font-mono ${
+                    filterAction === 'approved' ? 'bg-blue-50 text-blue-700 border border-blue-200 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Frictionless Approved
@@ -162,14 +179,14 @@ export const MerchantDashboardPreview: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 font-mono text-slate-500 text-[11px]">
-                    <th className="py-2.5 px-3">Time</th>
-                    <th className="py-2.5 px-3">Event Type</th>
-                    <th className="py-2.5 px-3">Customer Token</th>
-                    <th className="py-2.5 px-3">Amount</th>
-                    <th className="py-2.5 px-3">Risk Score</th>
-                    <th className="py-2.5 px-3">Reason Code</th>
-                    <th className="py-2.5 px-3 text-right">Policy Action</th>
+                  <tr className="border-b border-slate-200/80 font-mono text-slate-500 text-[11px]">
+                    <th className="py-3 px-3">Time</th>
+                    <th className="py-3 px-3">Event Type</th>
+                    <th className="py-3 px-3">Customer Token</th>
+                    <th className="py-3 px-3">Amount</th>
+                    <th className="py-3 px-3">Risk Score</th>
+                    <th className="py-3 px-3">Reason Code</th>
+                    <th className="py-3 px-3 text-right">Policy Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-mono">
@@ -177,16 +194,16 @@ export const MerchantDashboardPreview: React.FC = () => {
                     const isHigh = evt.band === 'critical';
                     const isMed = evt.band === 'elevated';
                     return (
-                      <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                      <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
                         <td className="py-3 px-3 text-slate-500">{evt.time}</td>
                         <td className="py-3 px-3 text-slate-900 font-medium">{evt.type}</td>
-                        <td className="py-3 px-3 text-blue-700 font-mono">{evt.customer}</td>
-                        <td className="py-3 px-3 text-slate-700">{evt.amount}</td>
+                        <td className="py-3 px-3 text-blue-700 font-mono font-medium">{evt.customer}</td>
+                        <td className="py-3 px-3 text-slate-700 font-medium">{evt.amount}</td>
                         <td className="py-3 px-3">
-                          <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold border ${
-                            isHigh ? 'text-rose-700 bg-rose-50 border-rose-200' :
-                            isMed ? 'text-amber-800 bg-amber-50 border-amber-200' :
-                            'text-blue-700 bg-blue-50 border-blue-200'
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border shadow-2xs ${
+                            isHigh ? 'text-rose-700 bg-rose-50/90 border-rose-200' :
+                            isMed ? 'text-amber-800 bg-amber-50/90 border-amber-200' :
+                            'text-blue-700 bg-blue-50/90 border-blue-200'
                           }`}>
                             {evt.score}/100
                           </span>
@@ -195,7 +212,7 @@ export const MerchantDashboardPreview: React.FC = () => {
                           <span className="truncate max-w-[180px] block">{evt.reasons[0]}</span>
                         </td>
                         <td className="py-3 px-3 text-right">
-                          <span className="text-[11px] uppercase font-semibold text-slate-700 bg-slate-50 px-2 py-1 rounded border border-slate-200">
+                          <span className="text-[11px] uppercase font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
                             {evt.action.replace(/_/g, ' ')}
                           </span>
                         </td>
