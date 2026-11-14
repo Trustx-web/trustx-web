@@ -232,6 +232,7 @@ async function deliverInquiryEmail(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
       Origin: originHeader,
       Referer: refererHeader,
       'User-Agent': requestMeta.userAgent || 'Mozilla/5.0 (compatible; TrustX-Web/1.0)',

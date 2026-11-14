@@ -63,10 +63,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     e.preventDefault();
     if (isSubmitting) return;
 
-    const cleanName = fullName.trim();
-    const cleanEmail = workEmail.trim();
-    const cleanCompany = company.trim();
-    const cleanMessage = message.trim();
+    const stripUnsafe = (val: string, maxLen: number) =>
+      val.replace(/[<>]/g, '').replace(/[\r\t]+/g, ' ').trim().slice(0, maxLen);
+
+    const cleanName = stripUnsafe(fullName.replace(/\n+/g, ' '), 120);
+    const cleanEmail = stripUnsafe(workEmail.replace(/\n+/g, ' '), 160).toLowerCase();
+    const cleanCompany = stripUnsafe(company.replace(/\n+/g, ' '), 140);
+    const cleanMessage = stripUnsafe(message, 4000);
+    const cleanVolume = stripUnsafe(monthlyOrderVolume.replace(/\n+/g, ' '), 80);
+    const cleanStack = stripUnsafe(integrationStack.replace(/\n+/g, ' '), 160);
 
     if (!cleanName) {
       setError('Please enter your full name.');
@@ -89,8 +94,61 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       return;
     }
 
+    if (website.trim().length > 0) {
+      setError(FALLBACK_ERROR_MESSAGE);
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
+
+    const sanitizedPayload = {
+      fullName: cleanName,
+      workEmail: cleanEmail,
+      company: cleanCompany,
+      inquiryType,
+      monthlyOrderVolume: cleanVolume,
+      integrationStack: cleanStack,
+      message: cleanMessage,
+      website,
+      formLoadedAt,
+    };
+
+    const submitViaFormSubmitBrowserFallback = async (): Promise<boolean> => {
+      const submittedAt = new Date().toISOString();
+      const fsResponse = await fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+          name: cleanName,
+          email: cleanEmail,
+          _subject: `[TrustX Website Inquiry] — ${inquiryType} — ${cleanCompany}`,
+          _replyto: cleanEmail,
+          _template: 'table',
+          _captcha: 'false',
+          'Full Name': cleanName,
+          'Work Email': cleanEmail,
+          'Company / Storefront': cleanCompany,
+          'Inquiry Type': inquiryType,
+          'Monthly Order Volume': cleanVolume || 'Not specified',
+          'Integration Stack': cleanStack || 'Not specified',
+          'Submission Timestamp (UTC)': submittedAt,
+          Message: cleanMessage,
+        }),
+      });
+
+      const fsData = (await fsResponse.json().catch(() => ({}))) as {
+        success?: boolean | string;
+      };
+      return (
+        fsResponse.ok &&
+        (fsData.success === true || String(fsData.success).toLowerCase() === 'true')
+      );
+    };
 
     try {
       const response = await fetch('/api/contact', {
@@ -98,17 +156,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fullName: cleanName,
-          workEmail: cleanEmail,
-          company: cleanCompany,
-          inquiryType,
-          monthlyOrderVolume: monthlyOrderVolume.trim(),
-          integrationStack: integrationStack.trim(),
-          message: cleanMessage,
-          website,
-          formLoadedAt,
-        }),
+        body: JSON.stringify(sanitizedPayload),
       });
 
       let payload: { ok?: boolean; message?: string; error?: string } = {};
@@ -122,13 +170,36 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         setSuccessMessage(payload.message || SUCCESS_MESSAGE);
         setSubmitted(true);
         setError('');
-      } else if (response.status >= 400 && response.status < 500 && payload.error) {
-        setError(payload.error);
-      } else {
+      } else if (
+        response.status === 400 ||
+        response.status === 409 ||
+        response.status === 429
+      ) {
         setError(payload.error || FALLBACK_ERROR_MESSAGE);
+      } else {
+        // Fallback to FormSubmit directly from browser if /api/contact is unavailable (404/405) or provider rejected server IP (502)
+        const fallbackOk = await submitViaFormSubmitBrowserFallback();
+        if (fallbackOk) {
+          setSuccessMessage(SUCCESS_MESSAGE);
+          setSubmitted(true);
+          setError('');
+        } else {
+          setError(FALLBACK_ERROR_MESSAGE);
+        }
       }
     } catch {
-      setError(FALLBACK_ERROR_MESSAGE);
+      try {
+        const fallbackOk = await submitViaFormSubmitBrowserFallback();
+        if (fallbackOk) {
+          setSuccessMessage(SUCCESS_MESSAGE);
+          setSubmitted(true);
+          setError('');
+        } else {
+          setError(FALLBACK_ERROR_MESSAGE);
+        }
+      } catch {
+        setError(FALLBACK_ERROR_MESSAGE);
+      }
     } finally {
       setIsSubmitting(false);
     }
