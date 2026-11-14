@@ -1,23 +1,23 @@
-export type CommerceEventType = 
-  | 'checkout' 
-  | 'cod_confirmation' 
-  | 'return_request' 
-  | 'refund_request' 
+export type CommerceEventType =
+  | 'checkout'
+  | 'cod_confirmation'
+  | 'return_request'
+  | 'refund_request'
   | 'account_creation';
 
 export type RiskBand = 'low' | 'moderate' | 'elevated' | 'critical';
 
-export type RecommendedAction = 
-  | 'approve' 
-  | 'request_verification' 
-  | 'require_prepayment_cod' 
-  | 'manual_review' 
+export type RecommendedAction =
+  | 'approve'
+  | 'request_verification'
+  | 'require_prepayment_cod'
+  | 'manual_review'
   | 'decline';
 
 export interface RiskDecisionContract {
   decision_id: string;
   event_id: string;
-  risk_score: number; // 0-100 bounded
+  risk_score: number;
   risk_band: RiskBand;
   confidence: 'low' | 'medium' | 'high';
   reason_codes: string[];
@@ -55,16 +55,27 @@ export interface CommerceSimulationEvent {
   privacyGuarantee: string;
 }
 
-export interface RiskDomainUseCase {
+export interface ServiceOffering {
   id: string;
+  index: string;
   title: string;
-  subtitle: string;
-  iconName: string;
-  problem: string;
+  category: string;
+  summary: string;
+  capabilities: string[];
+  outcomeMetric: string;
+  featured?: boolean;
+}
+
+export interface CaseStudy {
+  id: string;
+  category: 'COD & Logistics' | 'Payments' | 'Returns';
+  merchant: string;
+  region: string;
+  headlineMetric: string;
+  timeframe: string;
+  challenge: string;
   solution: string;
-  keySignals: string[];
-  merchantActions: string[];
-  measuredOutcome: string;
+  results: string[];
 }
 
 export interface GovernanceControl {
@@ -81,5 +92,4 @@ export interface BenchmarkStat {
   value: string;
   unit: string;
   context: string;
-  methodology: string;
 }

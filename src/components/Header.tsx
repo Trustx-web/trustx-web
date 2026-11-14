@@ -1,104 +1,71 @@
 import React, { useState } from 'react';
-import { Shield, Github, Menu, X, Code, Search, ChevronDown, Sparkles } from 'lucide-react';
+import { ShieldCheck, Menu, X } from 'lucide-react';
 
 interface HeaderProps {
-  onOpenSandbox: () => void;
-  onOpenPilotModal: () => void;
+  onRequestDemo: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSandbox, onOpenPilotModal }) => {
+export const Header: React.FC<HeaderProps> = ({ onRequestDemo }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const navItems = [
+    { label: 'About Us', href: '#about' },
+    { label: 'Services', href: '#services' },
+    { label: 'Case Studies', href: '#case-studies' },
+    { label: 'Contact', href: '#contact' },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/75 backdrop-blur-2xl border-b border-white/80 shadow-[0_4px_25px_rgba(37,99,235,0.04)] transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
-        
-        {/* Zone 1: Brand Wordmark with Liquid Glass Emblem */}
-        <div className="flex items-center gap-6">
-          <a 
-            href="#" 
-            className="flex items-center gap-2.5 text-slate-900 font-bold text-xl tracking-tight hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 group"
-          >
-            <div className="w-9 h-9 rounded-xl liquid-glass flex items-center justify-center group-hover:scale-105 group-hover:border-blue-300 transition-all shadow-xs">
-              <Shield className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-lg tracking-tight font-extrabold text-slate-900">
-              Trust<span className="text-blue-600">X</span>
-            </span>
-          </a>
+    <header className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur-xl border-b border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+        {/* Zone 1: Clean single-line brand wordmark */}
+        <a
+          href="#"
+          className="flex items-center gap-2.5 text-slate-900 font-bold text-lg tracking-tight whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-md"
+        >
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-700 to-emerald-600 flex items-center justify-center shadow-xs">
+            <ShieldCheck className="w-4 h-4 text-white" />
+          </span>
+          <span className="font-extrabold tracking-tight text-slate-900">
+            Trust<span className="text-blue-700">-</span>
+            <span className="text-emerald-600">X</span>
+          </span>
+        </a>
 
-          {/* Azure Portal-Inspired Search Box */}
-          <div 
-            onClick={onOpenSandbox}
-            className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-glass text-xs text-slate-400 hover:text-slate-600 hover:border-blue-200 cursor-pointer transition-all w-64 shadow-xs"
-          >
-            <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span className="truncate">Search policies, tokens, events</span>
-            <kbd className="ml-auto font-mono text-[10px] bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-500">⌘K</kbd>
-          </div>
-        </div>
-
-        {/* Zone 2: 4-5 Clean Nav Links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
-          <a 
-            href="#risk-engine" 
-            className="hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 py-1"
-          >
-            Risk Engine
-          </a>
-          <a 
-            href="#network-architecture" 
-            className="hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 py-1"
-          >
-            Network Architecture
-          </a>
-          <a 
-            href="#use-cases" 
-            className="hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 py-1"
-          >
-            Use Cases
-          </a>
-          <a 
-            href="#governance" 
-            className="hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 py-1"
-          >
-            Data Governance
-          </a>
-          <a 
-            href="#api-contract" 
-            className="hover:text-blue-600 transition-colors whitespace-nowrap shrink-0 py-1"
-          >
-            Developer API
-          </a>
+        {/* Zone 2: Clean single-line text links */}
+        <nav
+          aria-label="Primary Navigation"
+          className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600"
+        >
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="relative py-1 hover:text-blue-700 transition-colors whitespace-nowrap shrink-0 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-emerald-600 hover:after:w-full after:transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
 
-        {/* Zone 3: 1 Primary Action */}
-        <div className="hidden sm:flex items-center gap-3 shrink-0">
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 liquid-glass rounded-lg transition-colors whitespace-nowrap shadow-xs"
-          >
-            <Github className="w-3.5 h-3.5 text-slate-600" />
-            <span>GitHub</span>
-            <span className="text-slate-500 font-mono text-[11px]">★ 4.9k</span>
-          </a>
-
+        {/* Zone 3: Single Primary Action */}
+        <div className="hidden sm:flex items-center shrink-0">
           <button
-            onClick={onOpenSandbox}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-500/25 hover:shadow-blue-500/40 transition-all whitespace-nowrap active:scale-[0.98]"
+            type="button"
+            onClick={onRequestDemo}
+            className="px-4 py-2 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
-            <Code className="w-3.5 h-3.5 text-white" />
-            <span>Launch Sandbox</span>
+            Sign Up for a Demo
           </button>
         </div>
 
         {/* Mobile menu trigger */}
         <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-slate-600 hover:text-slate-900 focus:outline-none"
+          type="button"
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="md:hidden p-2 text-slate-700 hover:text-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
           aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -106,64 +73,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSandbox, onOpenPilotModal 
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-4 pt-3 pb-6 border-b border-white/80 bg-white/95 backdrop-blur-2xl">
-          <div className="flex flex-col gap-3 text-sm">
-            <a 
-              href="#risk-engine" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2 py-1.5 text-slate-700 hover:text-blue-600 font-medium"
-            >
-              Risk Engine
-            </a>
-            <a 
-              href="#network-architecture" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2 py-1.5 text-slate-700 hover:text-blue-600 font-medium"
-            >
-              Network Architecture
-            </a>
-            <a 
-              href="#use-cases" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2 py-1.5 text-slate-700 hover:text-blue-600 font-medium"
-            >
-              Use Cases
-            </a>
-            <a 
-              href="#governance" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2 py-1.5 text-slate-700 hover:text-blue-600 font-medium"
-            >
-              Data Governance
-            </a>
-            <a 
-              href="#api-contract" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2 py-1.5 text-slate-700 hover:text-blue-600 font-medium"
-            >
-              Developer API
-            </a>
-
-            <div className="pt-2 flex flex-col gap-2">
+        <div className="md:hidden px-4 pt-3 pb-5 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
+          <div className="flex flex-col gap-2 text-sm">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2.5 text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-lg font-medium whitespace-nowrap"
+              >
+                {item.label}
+              </a>
+            ))}
+            <div className="pt-2">
               <button
+                type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenSandbox();
+                  onRequestDemo();
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-blue-600 rounded-lg shadow-sm"
+                className="w-full px-4 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs whitespace-nowrap"
               >
-                <Code className="w-4 h-4" />
-                <span>Launch Merchant Sandbox</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenPilotModal();
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 liquid-glass rounded-lg"
-              >
-                <span>Request Architecture Review</span>
+                Sign Up for a Demo
               </button>
             </div>
           </div>

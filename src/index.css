@@ -3,104 +3,61 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: #ffffff;
+    color: #0f172a;
     overflow-x: hidden;
   }
-  
+
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
 }
 
-/* Azure Portal-grade liquid glass / frosted acrylic effects */
-.liquid-glass {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 
-    0 4px 16px -2px rgba(37, 99, 235, 0.04),
-    0 1px 2px rgba(15, 23, 42, 0.03),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+/* Trust-X Blue, Emerald & White Connectivity Mesh Canvas */
+.mesh-canvas {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(at 12% 14%, rgba(29, 78, 216, 0.08) 0px, transparent 48%),
+    radial-gradient(at 86% 18%, rgba(5, 150, 105, 0.08) 0px, transparent 46%),
+    radial-gradient(at 68% 72%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+    radial-gradient(at 22% 84%, rgba(16, 185, 129, 0.06) 0px, transparent 45%);
 }
 
-.liquid-glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 
-    0 10px 35px -10px rgba(37, 99, 235, 0.08),
-    0 1px 3px rgba(15, 23, 42, 0.03),
-    inset 0 1px 2px rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1px rgba(37, 99, 235, 0.02);
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+.mesh-grid-lines {
+  background-size: 48px 48px;
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
 }
 
-.liquid-glass-card:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.82) 100%);
-  box-shadow: 
-    0 22px 55px -12px rgba(37, 99, 235, 0.14),
-    0 4px 12px rgba(15, 23, 42, 0.04),
-    inset 0 1px 2px rgba(255, 255, 255, 1);
+/* Crisp frosted acrylic surfaces with hairline boundaries */
+.surface-glass {
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 8px 30px -12px rgba(15, 23, 42, 0.06);
+}
+
+.surface-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.surface-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 14px 34px -14px rgba(29, 78, 216, 0.12);
   transform: translateY(-2px);
 }
 
-.liquid-glass-portal {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.80) 100%);
-  backdrop-filter: blur(32px) saturate(210%);
-  -webkit-backdrop-filter: blur(32px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 
-    0 20px 60px -15px rgba(37, 99, 235, 0.09),
-    0 2px 6px rgba(15, 23, 42, 0.03),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
-}
-
-.liquid-glass-pill {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 
-    0 2px 8px -1px rgba(37, 99, 235, 0.05),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9);
-}
-
-.liquid-glass-accent {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.07) 0%, rgba(14, 165, 233, 0.04) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(37, 99, 235, 0.22);
-  box-shadow: 
-    0 8px 30px -5px rgba(37, 99, 235, 0.08),
-    inset 0 1px 2px rgba(255, 255, 255, 0.9);
-}
-
-/* Ambient color blobs that bleed through frosted liquid glass */
-.azure-blob-1 {
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.16) 0%, rgba(96, 165, 250, 0.07) 45%, transparent 70%);
-}
-
-.azure-blob-2 {
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, rgba(56, 189, 248, 0.05) 45%, transparent 70%);
-}
-
-.azure-blob-3 {
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.04) 50%, transparent 70%);
-}
-
-.azure-blob-4 {
-  background: radial-gradient(circle, rgba(2, 132, 199, 0.12) 0%, rgba(147, 197, 253, 0.04) 50%, transparent 70%);
-}
-
-/* Subtle modern technical grid */
-.tech-grid-pattern {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+@media (prefers-reduced-motion: reduce) {
+  .surface-card,
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
 
 /* Clean minimal scrollbars */
@@ -109,12 +66,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #94a3b8;
 }
