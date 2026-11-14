@@ -91,7 +91,16 @@ interface InquiryPayload {
   submittedAt: string;
 }
 
-async function deliverInquiryEmail(payload: InquiryPayload): Promise<{ provider: string; id: string }> {
+interface RequestMeta {
+  origin?: string;
+  referer?: string;
+  userAgent?: string;
+}
+
+async function deliverInquiryEmail(
+  payload: InquiryPayload,
+  requestMeta: RequestMeta = {}
+): Promise<{ provider: string; id: string }> {
   const subject = `[TrustX Website Inquiry] — ${payload.inquiryType} — ${payload.company}`;
   const replyToHeader = `${payload.fullName.replace(/["<>]/g, '')} <${payload.workEmail}>`;
 
@@ -204,9 +213,66 @@ async function deliverInquiryEmail(payload: InquiryPayload): Promise<{ provider:
     return { provider: 'smtp', id: info.messageId || 'accepted' };
   }
 
-  throw new Error(
-    'Transactional email provider is not configured. Set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS in server environment variables.'
-  );
+  // Provider 3: FormSubmit (default registered endpoint for krishnakamireddy@trustx.world)
+  const formSubmitEndpoint =
+    process.env.FORMSUBMIT_ENDPOINT?.trim() ||
+    `https://formsubmit.co/ajax/${RECIPIENT_EMAIL}`;
+
+  const originHeader =
+    requestMeta.origin && requestMeta.origin.startsWith('https://')
+      ? requestMeta.origin
+      : 'https://trustx.world';
+  const refererHeader =
+    requestMeta.referer && requestMeta.referer.startsWith('https://')
+      ? requestMeta.referer
+      : `${originHeader}/`;
+
+  const fsRes = await fetch(formSubmitEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Origin: originHeader,
+      Referer: refererHeader,
+      'User-Agent': requestMeta.userAgent || 'Mozilla/5.0 (compatible; TrustX-Web/1.0)',
+    },
+    body: JSON.stringify({
+      name: payload.fullName,
+      email: payload.workEmail,
+      _subject: subject,
+      _replyto: payload.workEmail,
+      _template: 'table',
+      _captcha: 'false',
+      'Full Name': payload.fullName,
+      'Work Email': payload.workEmail,
+      'Company / Storefront': payload.company,
+      'Inquiry Type': payload.inquiryType,
+      'Monthly Order Volume': payload.monthlyOrderVolume || 'Not specified',
+      'Integration Stack': payload.integrationStack || 'Not specified',
+      'Submission Timestamp (UTC)': payload.submittedAt,
+      Message: payload.message,
+    }),
+  });
+
+  const fsBodyText = await fsRes.text();
+  let fsParsed: { success?: boolean | string; message?: string } = {};
+  try {
+    fsParsed = JSON.parse(fsBodyText) as { success?: boolean | string; message?: string };
+  } catch {
+    throw new Error(`FormSubmit returned non-JSON response (${fsRes.status}): ${fsBodyText.slice(0, 200)}`);
+  }
+
+  const fsSucceeded =
+    fsRes.ok &&
+    (fsParsed.success === true || String(fsParsed.success).toLowerCase() === 'true');
+
+  if (!fsSucceeded) {
+    throw new Error(
+      `FormSubmit rejected delivery (${fsRes.status}): ${fsParsed.message || fsBodyText.slice(0, 200)}`
+    );
+  }
+
+  return { provider: 'formsubmit', id: 'accepted' };
 }
 
 async function createServer() {
@@ -317,7 +383,11 @@ async function createServer() {
         submittedAt: new Date().toISOString(),
       };
 
-      const delivery = await deliverInquiryEmail(payload);
+      const delivery = await deliverInquiryEmail(payload, {
+        origin: typeof req.headers.origin === 'string' ? req.headers.origin : undefined,
+        referer: typeof req.headers.referer === 'string' ? req.headers.referer : undefined,
+        userAgent: typeof req.headers['user-agent'] === 'string' ? req.headers['user-agent'] : undefined,
+      });
       recentSubmissionHashes.set(submissionHash, now);
 
       console.info(

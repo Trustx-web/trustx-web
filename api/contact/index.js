@@ -55,7 +55,7 @@ function checkRateLimit(ip) {
   return true;
 }
 
-async function deliverInquiryEmail(payload) {
+async function deliverInquiryEmail(payload, requestMeta = {}) {
   const subject = `[TrustX Website Inquiry] — ${payload.inquiryType} — ${payload.company}`;
   const replyToHeader = `${payload.fullName.replace(/["<>]/g, '')} <${payload.workEmail}>`;
 
@@ -160,9 +160,65 @@ async function deliverInquiryEmail(payload) {
     return { provider: 'smtp', id: info.messageId || 'accepted' };
   }
 
-  throw new Error(
-    'Transactional email provider is not configured. Set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS.'
-  );
+  const formSubmitEndpoint =
+    (process.env.FORMSUBMIT_ENDPOINT || '').trim() ||
+    `https://formsubmit.co/ajax/${RECIPIENT_EMAIL}`;
+
+  const originHeader =
+    requestMeta.origin && requestMeta.origin.startsWith('https://')
+      ? requestMeta.origin
+      : 'https://trustx.world';
+  const refererHeader =
+    requestMeta.referer && requestMeta.referer.startsWith('https://')
+      ? requestMeta.referer
+      : `${originHeader}/`;
+
+  const fsRes = await fetch(formSubmitEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Origin: originHeader,
+      Referer: refererHeader,
+      'User-Agent': requestMeta.userAgent || 'Mozilla/5.0 (compatible; TrustX-Web/1.0)',
+    },
+    body: JSON.stringify({
+      name: payload.fullName,
+      email: payload.workEmail,
+      _subject: subject,
+      _replyto: payload.workEmail,
+      _template: 'table',
+      _captcha: 'false',
+      'Full Name': payload.fullName,
+      'Work Email': payload.workEmail,
+      'Company / Storefront': payload.company,
+      'Inquiry Type': payload.inquiryType,
+      'Monthly Order Volume': payload.monthlyOrderVolume || 'Not specified',
+      'Integration Stack': payload.integrationStack || 'Not specified',
+      'Submission Timestamp (UTC)': payload.submittedAt,
+      Message: payload.message,
+    }),
+  });
+
+  const fsBodyText = await fsRes.text();
+  let fsParsed = {};
+  try {
+    fsParsed = JSON.parse(fsBodyText);
+  } catch {
+    throw new Error(`FormSubmit returned non-JSON response (${fsRes.status}): ${fsBodyText.slice(0, 200)}`);
+  }
+
+  const fsSucceeded =
+    fsRes.ok &&
+    (fsParsed.success === true || String(fsParsed.success).toLowerCase() === 'true');
+
+  if (!fsSucceeded) {
+    throw new Error(
+      `FormSubmit rejected delivery (${fsRes.status}): ${fsParsed.message || fsBodyText.slice(0, 200)}`
+    );
+  }
+
+  return { provider: 'formsubmit', id: 'accepted' };
 }
 
 module.exports = async function (context, req) {
@@ -286,7 +342,12 @@ module.exports = async function (context, req) {
       submittedAt: new Date().toISOString(),
     };
 
-    const delivery = await deliverInquiryEmail(payload);
+    const headers = req.headers || {};
+    const delivery = await deliverInquiryEmail(payload, {
+      origin: typeof headers.origin === 'string' ? headers.origin : undefined,
+      referer: typeof headers.referer === 'string' ? headers.referer : undefined,
+      userAgent: typeof headers['user-agent'] === 'string' ? headers['user-agent'] : undefined,
+    });
     recentSubmissionHashes.set(submissionHash, now);
     context.log(`[TrustX Contact] Delivered via ${delivery.provider} (${delivery.id})`);
 
