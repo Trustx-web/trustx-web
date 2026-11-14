@@ -9,7 +9,7 @@ import { ContactSection, InquiryType } from './components/ContactSection';
 import { Footer } from './components/Footer';
 
 export default function App() {
-  const [selectedInquiryType, setSelectedInquiryType] = useState<InquiryType>('Request a Product Demo');
+  const [selectedInquiryType, setSelectedInquiryType] = useState<InquiryType | ''>('');
   const [focusTrigger, setFocusTrigger] = useState(0);
 
   const scrollToContact = useCallback((inquiryType: InquiryType = 'Request a Product Demo') => {
