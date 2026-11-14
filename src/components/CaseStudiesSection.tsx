@@ -34,7 +34,7 @@ export const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onReques
               Proven Loss Prevention Across Global Commerce Leaders
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-              See how merchants deploy Trust-X intelligence to protect margins without adding friction to trusted buyers.
+              See how merchants deploy TrustX intelligence to protect margins without adding friction to trusted buyers.
             </p>
           </div>
 
@@ -87,7 +87,7 @@ export const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onReques
                     <strong className="text-slate-900">Challenge:</strong> {study.challenge}
                   </p>
                   <p>
-                    <strong className="text-slate-900">Trust-X Solution:</strong> {study.solution}
+                    <strong className="text-slate-900">TrustX Solution:</strong> {study.solution}
                   </p>
                 </div>
               </div>

@@ -17,8 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ onRequestDemo }) => {
                 <ShieldCheck className="w-4 h-4 text-white" />
               </span>
               <span className="font-extrabold tracking-tight">
-                Trust<span className="text-blue-700">-</span>
-                <span className="text-emerald-600">X</span>
+                Trust<span className="text-blue-700">X</span>
               </span>
             </a>
 
@@ -74,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ onRequestDemo }) => {
                 </a>
               </li>
               <li>
-                <a href="mailto:privacy@trust-x.dev" className="hover:text-blue-700 transition-colors">
+                <a href="mailto:krishnakamireddy@trustx.world" className="hover:text-blue-700 transition-colors">
                   Consumer Dispute Office
                 </a>
               </li>
@@ -91,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({ onRequestDemo }) => {
                   onClick={onRequestDemo}
                   className="text-blue-700 font-semibold hover:text-blue-800 transition-colors text-left cursor-pointer"
                 >
-                  Sign Up for a Demo
+                  Request a Demo
                 </button>
               </li>
               <li>
@@ -100,8 +99,8 @@ export const Footer: React.FC<FooterProps> = ({ onRequestDemo }) => {
                 </a>
               </li>
               <li>
-                <a href="mailto:merchants@trust-x.dev" className="hover:text-blue-700 transition-colors">
-                  merchants@trust-x.dev
+                <a href="mailto:krishnakamireddy@trustx.world" className="hover:text-blue-700 transition-colors">
+                  krishnakamireddy@trustx.world
                 </a>
               </li>
             </ul>
@@ -109,14 +108,14 @@ export const Footer: React.FC<FooterProps> = ({ onRequestDemo }) => {
         </div>
 
         <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-xs">
-          <div>© {new Date().getFullYear()} Trust-X Technologies. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} TrustX Technologies. All rights reserved.</div>
           <div className="flex items-center gap-4">
             <a href="#about" className="hover:text-slate-800 transition-colors">
               Purpose Limitation Standard
             </a>
             <span aria-hidden="true" className="text-slate-300">·</span>
-            <a href="mailto:security@trust-x.dev" className="hover:text-slate-800 transition-colors">
-              Security Disclosures
+            <a href="mailto:krishnakamireddy@trustx.world" className="hover:text-slate-800 transition-colors">
+              Security &amp; Privacy Contact
             </a>
           </div>
         </div>

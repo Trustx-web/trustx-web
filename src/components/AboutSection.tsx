@@ -49,7 +49,7 @@ export const AboutSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
           <div className="lg:col-span-6 flex flex-col justify-center">
             <div className="text-xs font-semibold uppercase tracking-wider text-blue-700 mb-2">
-              01. About Trust-X
+              01. About TrustX
             </div>
             <h2
               className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight"
@@ -62,7 +62,7 @@ export const AboutSection: React.FC = () => {
               coordinated Cash-on-Delivery refusals and serial return abuse to automated device farms.
             </p>
             <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-              Trust-X bridges that intelligence gap responsibly. Instead of pooling raw consumer dossiers,
+              TrustX bridges that intelligence gap responsibly. Instead of pooling raw consumer dossiers,
               we transform transactional, behavioural, device, and cross-merchant signals into
               minimum-necessary risk intelligence backed by strict tenant isolation and explainable outputs.
             </p>
@@ -95,7 +95,7 @@ export const AboutSection: React.FC = () => {
                 {!imgError ? (
                   <img
                     src={commerceSecurityVisual}
-                    alt="Layered translucent glass mesh illustrating Trust-X cryptographic signal isolation"
+                    alt="Layered translucent glass mesh illustrating TrustX cryptographic signal isolation"
                     referrerPolicy="no-referrer"
                     onError={() => setImgError(true)}
                     className="w-full h-full object-cover"

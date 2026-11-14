@@ -27,8 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ onRequestDemo }) => {
             <ShieldCheck className="w-4 h-4 text-white" />
           </span>
           <span className="font-extrabold tracking-tight text-slate-900">
-            Trust<span className="text-blue-700">-</span>
-            <span className="text-emerald-600">X</span>
+            Trust<span className="text-blue-700">X</span>
           </span>
         </a>
 
@@ -55,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ onRequestDemo }) => {
             onClick={onRequestDemo}
             className="px-4 py-2 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
           >
-            Sign Up for a Demo
+            Request a Demo
           </button>
         </div>
 
@@ -94,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ onRequestDemo }) => {
                 }}
                 className="w-full px-4 py-2.5 text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs whitespace-nowrap"
               >
-                Sign Up for a Demo
+                Request a Demo
               </button>
             </div>
           </div>

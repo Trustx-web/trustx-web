@@ -40,7 +40,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onRequestDemo 
     }
   };
 
-  const curlSnippet = `curl -X POST https://api.trust-x.dev/v1/decisions/evaluate \\
+  const curlSnippet = `curl -X POST https://api.trustx.dev/v1/decisions/evaluate \\
   -H "Authorization: Bearer sec_live_merchant_key" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -125,7 +125,7 @@ decision = client.decisions.evaluate(
               End-to-End Risk Intelligence Across the Commerce Lifecycle
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-              From pre-authorization checkout scoring to COD dispatch verification and return-portal protection, Trust-X equips merchant operations with unified, privacy-safe intelligence.
+              From pre-authorization checkout scoring to COD dispatch verification and return-portal protection, TrustX equips merchant operations with unified, privacy-safe intelligence.
             </p>
           </div>
 
@@ -200,7 +200,7 @@ decision = client.decisions.evaluate(
                 Interactive Risk Decision Explorer
               </h3>
               <p className="text-xs text-slate-500">
-                Inspect how Trust-X transforms live commerce signals into explainable decisions
+                Inspect how TrustX transforms live commerce signals into explainable decisions
               </p>
             </div>
 

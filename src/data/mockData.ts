@@ -104,7 +104,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     challenge:
       'High-value COD orders in Tier-2 metro zones were suffering a 28% doorstep refusal rate, eroding unit margins through two-way courier costs and damaged inventory.',
     solution:
-      'Deployed Trust-X pre-dispatch COD scoring at order confirmation, routing elevated-risk baskets to nominal 10% UPI advance deposit while fast-tracking verified repeat buyers.',
+      'Deployed TrustX pre-dispatch COD scoring at order confirmation, routing elevated-risk baskets to nominal 10% UPI advance deposit while fast-tracking verified repeat buyers.',
     results: [
       '64% reduction in uncollected Return-to-Origin shipments',
       '94% checkout conversion retained across high-intent COD shoppers',
@@ -121,7 +121,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     challenge:
       'Automated card-testing bursts and shared-device syndicates targeted flagship smartphone launches, forcing legacy rules to block legitimate first-time buyers.',
     solution:
-      'Integrated Trust-X sub-35ms checkout scoring with cross-merchant device velocity signals to trigger 3DS verification selectively on multi-identity device clusters.',
+      'Integrated TrustX sub-35ms checkout scoring with cross-merchant device velocity signals to trigger 3DS verification selectively on multi-identity device clusters.',
     results: [
       '89% of coordinated multi-account bots stopped during flash drops',
       '$38,400+ in weekly chargeback exposure prevented',
@@ -138,7 +138,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     challenge:
       'Serial event wardrobing on designer garments caused high write-offs and abused instant-refund policies without clear visibility across retail channels.',
     solution:
-      'Connected Trust-X return evaluation to RMA intake, replacing blanket friction with targeted warehouse inspection and store-credit options on repeat abuse signals.',
+      'Connected TrustX return evaluation to RMA intake, replacing blanket friction with targeted warehouse inspection and store-credit options on repeat abuse signals.',
     results: [
       '22% drop in unsellable returned inventory write-offs',
       'Instant refunds preserved for 96% of trusted shoppers',
@@ -184,7 +184,7 @@ export const COMMERCE_SIMULATION_EVENTS: CommerceSimulationEvent[] = [
       evaluated_at: '2026-11-14T10:15:12Z',
       appeal_metadata: {
         eligible_for_correction: true,
-        dispute_contact: 'privacy@trust-x.dev',
+        dispute_contact: 'krishnakamireddy@trustx.world',
         correlation_id: 'corr_aurastyle_cod_992',
       },
     },
@@ -229,7 +229,7 @@ export const COMMERCE_SIMULATION_EVENTS: CommerceSimulationEvent[] = [
       evaluated_at: '2026-11-14T10:14:08Z',
       appeal_metadata: {
         eligible_for_correction: true,
-        dispute_contact: 'privacy@trust-x.dev',
+        dispute_contact: 'krishnakamireddy@trustx.world',
         correlation_id: 'corr_maison_ret_182',
       },
     },
@@ -274,7 +274,7 @@ export const COMMERCE_SIMULATION_EVENTS: CommerceSimulationEvent[] = [
       evaluated_at: '2026-11-14T10:12:41Z',
       appeal_metadata: {
         eligible_for_correction: true,
-        dispute_contact: 'privacy@trust-x.dev',
+        dispute_contact: 'krishnakamireddy@trustx.world',
         correlation_id: 'corr_volt_chk_004',
       },
     },
@@ -343,7 +343,7 @@ export const GOVERNANCE_CONTROLS: GovernanceControl[] = [
     requirement:
       'Safeguards against opaque automated profiling (Article 22), right to explanation, and human merchant oversight.',
     trustXImplementation:
-      'Trust-X returns calibrated risk scores and transparent reason codes in advisory mode; merchant policy retains final control.',
+      'TrustX returns calibrated risk scores and transparent reason codes in advisory mode; merchant policy retains final control.',
     verificationEvidence: 'Standardized reason code taxonomy and consumer dispute API.',
   },
   {
@@ -403,6 +403,6 @@ export const FOUNDER_PRINCIPLES = [
     number: '06',
     title: 'Human Oversight',
     description:
-      'Trust-X delivers real-time advisory intelligence while leaving final approval, verification, or review decisions in merchant hands.',
+      'TrustX delivers real-time advisory intelligence while leaving final approval, verification, or review decisions in merchant hands.',
   },
 ];

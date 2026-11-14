@@ -56,7 +56,7 @@ export const Hero: React.FC<HeroProps> = ({ onRequestDemo }) => {
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-              Trust-X transforms transactional, behavioural, device, and cross-merchant signals into
+              TrustX transforms transactional, behavioural, device, and cross-merchant signals into
               real-time commerce risk intelligence enabling merchants to identify hidden risks,
               prevent abuse, and make smarter decisions before losses occur.
             </p>
@@ -90,7 +90,7 @@ export const Hero: React.FC<HeroProps> = ({ onRequestDemo }) => {
                 onClick={onRequestDemo}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-sm transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
-                <span>Sign Up for a Demo</span>
+                <span>Request a Demo</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -98,7 +98,7 @@ export const Hero: React.FC<HeroProps> = ({ onRequestDemo }) => {
                 href="#services"
                 className="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-slate-700 hover:text-emerald-700 bg-white border border-slate-200 hover:border-emerald-300 rounded-xl transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
               >
-                <span>Explore Trust-X Services</span>
+                <span>Explore TrustX Services</span>
               </a>
             </div>
           </div>
@@ -110,7 +110,7 @@ export const Hero: React.FC<HeroProps> = ({ onRequestDemo }) => {
                 {!imgError ? (
                   <img
                     src={meshHeroVisual}
-                    alt="Trust-X interconnected commerce risk intelligence mesh linking transactional, behavioral, and device signals"
+                    alt="TrustX interconnected commerce risk intelligence mesh linking transactional, behavioral, and device signals"
                     referrerPolicy="no-referrer"
                     onError={() => setImgError(true)}
                     className="w-full h-full object-cover"
@@ -119,7 +119,7 @@ export const Hero: React.FC<HeroProps> = ({ onRequestDemo }) => {
                   <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
                     <ShieldCheck className="w-14 h-14 text-blue-700 mb-3" />
                     <p className="text-sm font-semibold text-slate-900">
-                      Trust-X Signal Connectivity Mesh
+                      TrustX Signal Connectivity Mesh
                     </p>
                     <p className="text-xs text-slate-600 mt-1">
                       Real-time evaluation across checkout, COD, and return workflows
